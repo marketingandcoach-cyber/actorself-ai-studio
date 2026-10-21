@@ -64,7 +64,7 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
         </div>
 
         <span className="px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400 font-bold">
-          5.0 Segundos · 60 FPS
+          {result.durationSec.toFixed(1)}s · Composición WebM
         </span>
       </div>
 
@@ -120,8 +120,8 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">
-            <span className="text-[10px] font-mono text-slate-500 uppercase block">Duración Exacta:</span>
-            <span className="font-bold text-sky-300 font-mono">5.0 segundos</span>
+            <span className="text-[10px] font-mono text-slate-500 uppercase block">Duración Real Medida:</span>
+            <span className="font-bold text-sky-300 font-mono">{result.durationSec.toFixed(1)} segundos</span>
           </div>
 
           <div className="p-3.5 rounded-xl bg-slate-950/80 border border-slate-800">

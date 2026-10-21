@@ -148,7 +148,7 @@ export const Screen6SceneGenerator: React.FC<Screen6SceneGeneratorProps> = ({
             </div>
 
             <p className="text-[11px] font-mono text-slate-500 text-center">
-              Renderizando fotogramas a 60 FPS y sintetizando audio espacial...
+              Renderizando fotogramas en navegador y sintetizando audio espacial...
             </p>
           </div>
         ) : (

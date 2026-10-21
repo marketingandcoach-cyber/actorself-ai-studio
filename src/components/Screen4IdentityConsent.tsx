@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Upload,
   Camera,
@@ -33,6 +33,15 @@ export const Screen4IdentityConsent: React.FC<Screen4IdentityConsentProps> = ({
   const [isCameraActive, setIsCameraActive] = useState<boolean>(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  // Release camera stream on unmount or navigation
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((t) => t.stop());
+      }
+    };
+  }, [cameraStream]);
 
   // Handle Photo File Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
