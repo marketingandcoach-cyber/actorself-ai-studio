@@ -73,60 +73,107 @@ export async function generateCinematicScene(
     });
   }
 
-  // Start recording
-  recorder.start(100);
+  // Validate output by reading media metadata before reporting success.
+  const verifyVideo = (url: string): Promise<number> => new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    let finished = false;
+    const finish = (error?: Error, duration?: number) => {
+      if (finished) return;
+      finished = true;
+      clearTimeout(timeout);
+      video.removeAttribute('src');
+      video.load();
+      if (error) reject(error);
+      else resolve(duration!);
+    };
+    const timeout = setTimeout(() => finish(new Error('Tiempo agotado al verificar el video.')), 12000);
+    video.preload = 'metadata';
+    video.onloadedmetadata = () => {
+      const duration = video.duration;
+      if (Number.isFinite(duration) && duration > 0) finish(undefined, duration);
+      else {
+        // Some WebM recordings report Infinity until seeked.
+        video.currentTime = 1e9;
+      }
+    };
+    video.onseeked = () => {
+      if (Number.isFinite(video.currentTime) && video.currentTime > 0) finish(undefined, video.currentTime);
+      else finish(new Error('No se pudo medir la duración del video.'));
+    };
+    video.onerror = () => finish(new Error('El archivo generado no se puede reproducir.'));
+    video.src = url;
+  });
 
-  // 5 seconds total at 60 FPS = 300 frames (5000 ms)
   const totalDurationMs = 5000;
   const startTime = performance.now();
+  let finished = false;
+  let animationId = 0;
+  let stopTimeout: ReturnType<typeof setTimeout> | undefined;
 
   return new Promise((resolve, reject) => {
-    recorder.onstop = () => {
+    const cleanup = () => {
+      cancelAnimationFrame(animationId);
+      if (stopTimeout) clearTimeout(stopTimeout);
+      combinedStream.getTracks().forEach(track => track.stop());
+      audioCtx.close().catch(() => {});
+    };
+    const fail = (error: Error) => {
+      if (finished) return;
+      finished = true;
+      cleanup();
+      reject(error);
+    };
+    recorder.onerror = () => fail(new Error('La grabación audiovisual falló.'));
+    recorder.onstop = async () => {
+      if (finished) return;
+      finished = true;
+      cleanup();
       const videoBlob = new Blob(recordedChunks, { type: chosenMime });
+      if (videoBlob.size < 1024) {
+        reject(new Error('El video generado está vacío o incompleto.'));
+        return;
+      }
       const videoUrl = URL.createObjectURL(videoBlob);
-      audioCtx.close().catch(() => {});
-      resolve({
-        videoBlob,
-        videoUrl,
-        durationSec: 5.0
-      });
+      try {
+        const durationSec = await verifyVideo(videoUrl);
+        if (durationSec < 1 || durationSec > 15) throw new Error('La duración del video está fuera del rango esperado.');
+        resolve({ videoBlob, videoUrl, durationSec });
+      } catch (error) {
+        URL.revokeObjectURL(videoUrl);
+        reject(error);
+      }
     };
-
-    recorder.onerror = (e) => {
-      audioCtx.close().catch(() => {});
-      reject(e);
-    };
-
+    try {
+      recorder.start(100);
+    } catch (error) {
+      fail(error instanceof Error ? error : new Error('No se pudo iniciar la grabación.'));
+      return;
+    }
     function renderLoop() {
-      const now = performance.now();
-      const elapsed = Math.min(totalDurationMs, now - startTime);
+      if (finished) return;
+      const elapsed = Math.min(totalDurationMs, performance.now() - startTime);
       const progress = elapsed / totalDurationMs;
-      const t = elapsed / 1000; // time in seconds (0.0 to 5.0)
-
-      // Update progress callback
+      const t = elapsed / 1000;
       let phaseLabel = 'Iniciando telemetría...';
       if (t < 1.0) phaseLabel = 'Segundo 0–1: Interior de la nave Kepler-One';
       else if (t < 2.0) phaseLabel = 'Segundo 1–2: Alerta de estrella inestable';
       else if (t < 3.0) phaseLabel = `Segundo 2–3: Integrando a Comandante ${participant.name || ''}`;
       else if (t < 4.0) phaseLabel = 'Segundo 3–4: Sobrecarga térmica y cuenta regresiva';
       else phaseLabel = 'Segundo 4–5: Salto hiperespacial ejecutado';
-
       onProgress?.(progress, phaseLabel);
-
-      // Render cinematic frame
-      renderFrame(context2d, t, stars, userImg, participant.name || 'COMANDANTE', config);
-
-      if (elapsed < totalDurationMs) {
-        requestAnimationFrame(renderLoop);
-      } else {
-        // Complete the 5 seconds recording
-        setTimeout(() => {
-          recorder.stop();
-        }, 150);
+      try {
+        renderFrame(context2d, t, stars, userImg, participant.name || 'COMANDANTE', config);
+      } catch (error) {
+        fail(error instanceof Error ? error : new Error('Error al dibujar un fotograma.'));
+        if (recorder.state !== 'inactive') recorder.stop();
+        return;
       }
+      if (elapsed < totalDurationMs) animationId = requestAnimationFrame(renderLoop);
+      else stopTimeout = setTimeout(() => {
+        if (!finished && recorder.state !== 'inactive') recorder.stop();
+      }, 150);
     }
-
-    requestAnimationFrame(renderLoop);
+    animationId = requestAnimationFrame(renderLoop);
   });
 }
 
