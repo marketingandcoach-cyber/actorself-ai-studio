@@ -36,6 +36,10 @@ export const Screen6SceneGenerator: React.FC<Screen6SceneGeneratorProps> = ({
         }
       );
 
+      if (videoBlob.size < 1024 || !Number.isFinite(durationSec) || durationSec <= 0) {
+        throw new Error('El archivo generado no superó la validación.');
+      }
+
       const result: GeneratedSceneResult = {
         id: `scene-${Date.now()}`,
         videoBlobUrl: videoUrl,
@@ -77,7 +81,7 @@ export const Screen6SceneGenerator: React.FC<Screen6SceneGeneratorProps> = ({
           Crea tu escena de 5 segundos
         </h2>
         <p className="text-sm text-slate-400 max-w-2xl">
-          El motor de composición procesará fotograma a fotograma tu integración en la cabina espacial a 60 FPS con síntesis sonora cinematográfica.
+          El motor de composición procesará fotograma a fotograma tu integración en la cabina espacial con síntesis sonora cinematográfica. La tasa de fotogramas efectiva depende del dispositivo.
         </p>
       </div>
 
