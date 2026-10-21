@@ -1,0 +1,6 @@
+{
+  "name": "ACTORSELF — Enter the Story",
+  "description": "Plataforma de entretenimiento cinematográfico interactivo. Conviértete en protagonista de tus historias favoritas con personalización audiovisual en tiempo real.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
