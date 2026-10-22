@@ -1,3 +1,6 @@
+import keplerPoster from '../assets/images/kepler_scifi_poster_1792679202175.jpg';
+import fogPoster from '../assets/images/nordic_fog_poster_1792679202682.jpg';
+import neonPoster from '../assets/images/neon_cyberpunk_poster_1792679204523.jpg';
 import { StoryData } from '../types';
 import { CINEMATIC_SCENES } from './scenes';
 
@@ -10,7 +13,7 @@ export const STORIES: StoryData[] = [
     durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Interior del puente de mando de la fragata estelar Kepler-One, a 0.2 unidades astronómicas de la estrella moribunda Kepler-452.',
     synopsis: 'Durante una misión de cartografía en los confines del sector exterior, una anomalía gravitatoria arrastra a la nave hacia el horizonte de radiación de una estrella inestable. Como Comandante, debes ejecutar la maniobra de escape hiperespacial antes de que la cabina colapse.',
-    coverImage: '/src/assets/images/kepler_scifi_poster_1792679202175.jpg',
+    coverImage: keplerPoster,
     isAvailable: true,
     badge: 'HISTORIA AUTORIZADA · SALTO HIPERESPACIAL',
     roles: [
@@ -34,7 +37,7 @@ export const STORIES: StoryData[] = [
     durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Un faro centenario aislado en las costas de Noruega.',
     synopsis: 'Un detective privado investiga la desaparición de un convoy marítimo en el mar del norte y descubre señales cifradas en las rocas submarinas.',
-    coverImage: '/src/assets/images/nordic_fog_poster_1792679202682.jpg',
+    coverImage: fogPoster,
     isAvailable: true,
     badge: 'HISTORIA AUTORIZADA · INTERROGATORIO NOIR',
     roles: [
@@ -58,7 +61,7 @@ export const STORIES: StoryData[] = [
     durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Nivel 14 de Neo-Shinjuku, rascacielos sumergidos bajo lluvia ácida.',
     synopsis: 'Un mensajero de datos intercepta un nanodisco con la clave para restaurar el suministro de energía limpia de toda la ciudad mientras es perseguido por drones corporativos.',
-    coverImage: '/src/assets/images/neon_cyberpunk_poster_1792679204523.jpg',
+    coverImage: neonPoster,
     isAvailable: true,
     badge: 'HISTORIA AUTORIZADA · FUGA EN CORNISA',
     roles: [
