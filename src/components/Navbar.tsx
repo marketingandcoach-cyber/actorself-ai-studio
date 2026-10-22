@@ -1,5 +1,5 @@
 import React from 'react';
-import { Film, Sparkles, BookOpen, ChevronRight, ShieldCheck, Tv } from 'lucide-react';
+import { ArrowRight, Film, Tv } from 'lucide-react';
 
 interface NavbarProps {
   currentStep: number;
@@ -23,71 +23,109 @@ export const Navbar: React.FC<NavbarProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        {/* Brand */}
+    <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-xl border-b border-slate-800/80 text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between gap-8">
+        {/* Zone 1: Brand wordmark (single element, whitespace-nowrap) */}
         <div
           onClick={() => onNavigateStep(1)}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-2.5 cursor-pointer group shrink-0"
         >
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-amber-500 flex items-center justify-center shadow-lg shadow-indigo-950/40 group-hover:scale-105 transition-transform">
-            <Film className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-400 via-indigo-500 to-sky-300 flex items-center justify-center shadow-md shadow-sky-950/50 group-hover:scale-105 transition-transform">
+            <Film className="w-4 h-4 text-slate-950" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="font-extrabold text-lg tracking-tight font-sans text-white">
-                ACTORSELF
-              </span>
-              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/30">
-                Enter the Story
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 hidden sm:block">
-              Prototipo Interactivo · Hackatón Amazon
-            </p>
-          </div>
+          <span className="font-extrabold text-lg tracking-tight font-sans text-white whitespace-nowrap">
+            ACTORSELF
+          </span>
         </div>
 
-        {/* Stepper Dots / Breadcrumbs */}
-        <nav className="hidden md:flex items-center gap-1.5 text-xs">
-          {stepLabels.map((label, idx) => {
-            const stepNum = idx + 1;
-            const isActive = currentStep === stepNum;
-            const isCompleted = currentStep > stepNum;
+        {/* Zone 2: Navigation Links or Stepper Breadcrumbs */}
+        {currentStep === 1 ? (
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
+            <a
+              href="#peliculas"
+              className="hover:text-sky-400 transition-colors whitespace-nowrap shrink-0"
+            >
+              Películas
+            </a>
+            <a
+              href="#como-funciona"
+              className="hover:text-sky-400 transition-colors whitespace-nowrap shrink-0"
+            >
+              Cómo Funciona
+            </a>
+            <a
+              href="#tecnologia"
+              className="hover:text-sky-400 transition-colors whitespace-nowrap shrink-0"
+            >
+              Tecnología & IA
+            </a>
+            <button
+              onClick={onOpenArchitecture}
+              className="hover:text-sky-400 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            >
+              Dossier Prime Video
+            </button>
+          </nav>
+        ) : (
+          <nav className="hidden lg:flex items-center gap-1.5 text-xs">
+            {stepLabels.map((label, idx) => {
+              const stepNum = idx + 1;
+              const isActive = currentStep === stepNum;
+              const isCompleted = currentStep > stepNum;
 
-            return (
-              <React.Fragment key={label}>
-                {idx > 0 && (
-                  <span className="text-slate-600 text-[10px] px-0.5">·</span>
-                )}
-                <button
-                  onClick={() => onNavigateStep(stepNum)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer text-xs ${
-                    isActive
-                      ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-500/40'
-                      : isCompleted
-                      ? 'text-slate-300 hover:text-white'
-                      : 'text-slate-500 hover:text-slate-400'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-sky-400 animate-ping' : isCompleted ? 'bg-emerald-400' : 'bg-slate-700'}`}></span>
-                  <span>{label}</span>
-                </button>
-              </React.Fragment>
-            );
-          })}
-        </nav>
+              return (
+                <React.Fragment key={label}>
+                  {idx > 0 && <span className="text-slate-600 text-[10px] px-0.5">·</span>}
+                  <button
+                    onClick={() => onNavigateStep(stepNum)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-colors cursor-pointer text-xs whitespace-nowrap shrink-0 ${
+                      isActive
+                        ? 'bg-sky-500/20 text-sky-300 font-bold border border-sky-500/40'
+                        : isCompleted
+                        ? 'text-slate-300 hover:text-white'
+                        : 'text-slate-500 hover:text-slate-400'
+                    }`}
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full ${
+                        isActive ? 'bg-sky-400 animate-ping' : isCompleted ? 'bg-emerald-400' : 'bg-slate-700'
+                      }`}
+                    ></span>
+                    <span>{label}</span>
+                  </button>
+                </React.Fragment>
+              );
+            })}
+          </nav>
+        )}
 
-        {/* Action button: Arquitectura & Dossier Técnico */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={onOpenArchitecture}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-xs font-medium text-slate-300 hover:text-white transition-all cursor-pointer"
-          >
-            <Tv className="w-3.5 h-3.5 text-sky-400" />
-            <span className="hidden sm:inline">Visión Prime Video & Fire TV</span>
-            <span className="sm:hidden">Dossier</span>
-          </button>
+        {/* Zone 3: 1 Primary Action */}
+        <div className="flex items-center gap-3 shrink-0">
+          {currentStep === 1 ? (
+            <button
+              onClick={() => onNavigateStep(2)}
+              className="px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-sky-400 to-sky-300 hover:from-sky-300 hover:to-white rounded-xl shadow-lg shadow-sky-500/20 transition-all cursor-pointer whitespace-nowrap shrink-0 flex items-center gap-2 group"
+            >
+              <span>Entrar en la Historia</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onNavigateStep(1)}
+                className="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 hover:text-white transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              >
+                Inicio
+              </button>
+              <button
+                onClick={onOpenArchitecture}
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-sky-400 hover:text-sky-300 transition-colors cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <Tv className="w-3.5 h-3.5" />
+                <span>Prime Video</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

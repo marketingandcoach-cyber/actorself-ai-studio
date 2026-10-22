@@ -185,6 +185,59 @@ export const Screen5Customization: React.FC<Screen5CustomizationProps> = ({
             </button>
           </div>
         </div>
+
+        {/* Duration Selection (15s Extended vs 5s Rapid) */}
+        <div>
+          <label className="block text-xs font-mono uppercase tracking-wider text-slate-400 font-bold mb-3">
+            3. Duración de la Escena & Montaje de Planos
+          </label>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => onUpdateConfig({ cinematicDurationSec: 15 })}
+              className={`p-4 rounded-2xl border text-left cursor-pointer transition-all ${
+                (config.cinematicDurationSec || 15) === 15
+                  ? 'bg-sky-950/40 border-sky-400 text-white shadow-md ring-1 ring-sky-400/40'
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold text-sm text-sky-300 flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-sky-400" /> 15 Segundos (Recomendado)
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-bold">
+                  4 Planos Cinematográficos
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-300">
+                Secuencia completa estilo superproducción: Plano medio de cabina, primer plano dramático del rostro ante la alarma, ángulo táctico de aceleración y salto hiperespacial con letrero estelar.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onUpdateConfig({ cinematicDurationSec: 5 })}
+              className={`p-4 rounded-2xl border text-left cursor-pointer transition-all ${
+                config.cinematicDurationSec === 5
+                  ? 'bg-amber-950/40 border-amber-400 text-white shadow-md ring-1 ring-amber-400/40'
+                  : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-bold text-sm text-slate-200 flex items-center gap-1.5">
+                  5 Segundos
+                </span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+                  Demo Rápida
+                </span>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-400">
+                Demostración condensada para revisiones veloces. Conserva la integración facial en el traje espacial en un corte dinámico de 5 segundos.
+              </p>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Navigation Buttons */}

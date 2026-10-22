@@ -31,6 +31,7 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
 }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [videoError, setVideoError] = useState<boolean>(false);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
@@ -58,13 +59,13 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
               ¡Escena Cinematográfica Generada con Éxito!
             </h3>
             <p className="text-xs text-slate-300">
-              Comandante <strong>{result.participantName.toUpperCase()}</strong> integrado en el puente de mando de Kepler-One.
+              <strong>{result.participantName.toUpperCase()}</strong> integrado de forma realista en <em>{result.sceneTitle || story.title}</em>, sustituyendo a {result.replacedActorName || 'Nikolaj Coster-Waldau'}.
             </p>
           </div>
         </div>
 
         <span className="px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs font-mono text-emerald-400 font-bold">
-          {result.durationSec.toFixed(1)}s · Composición WebM
+          {result.durationSec.toFixed(1)}s · WebM 1080p
         </span>
       </div>
 
@@ -79,8 +80,26 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}
             onEnded={() => setIsPlaying(false)}
+            onError={() => setVideoError(true)}
             className="w-full h-full object-cover"
           />
+
+          {videoError && (
+            <div className="absolute inset-0 bg-slate-950/90 flex flex-col items-center justify-center p-6 text-center space-y-3">
+              <Film className="w-10 h-10 text-sky-400 animate-pulse" />
+              <div className="text-sm font-bold text-white">Video renderizado listo para descarga</div>
+              <p className="text-xs text-slate-400 max-w-md">
+                Tu navegador requiere códec nativo para reproducción directa en línea. Puedes descargar el archivo .webm completo o volver a generar la toma.
+              </p>
+              <a
+                href={result.videoBlobUrl}
+                download={`ACTORSELF_${result.participantName.replace(/\s+/g, '_')}_Kepler.webm`}
+                className="px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs"
+              >
+                Descargar Metraje Completo
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Primary Action Buttons Bar */}
@@ -136,6 +155,21 @@ export const Screen7CinematicPlayer: React.FC<Screen7CinematicPlayerProps> = ({
             <span className="font-bold text-white font-mono">{fileSizeMb} MB</span>
           </div>
         </div>
+
+        {/* Actor Pro Expressions Integration Status */}
+        {result.usedExpressionsCount !== undefined && result.usedExpressionsCount > 0 && (
+          <div className="p-3.5 rounded-2xl bg-slate-950/60 border border-slate-800 flex items-center justify-between text-xs">
+            <span className="text-slate-300 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-sky-400" />
+              <span>
+                <strong>Actor Pro:</strong> {result.usedExpressionsCount} expresiones faciales sincronizadas en la línea de tiempo.
+              </span>
+            </span>
+            <span className="text-[11px] font-mono text-emerald-400">
+              Transiciones e iluminación adaptadas
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Commercial Vision & Hackathon Information Card */}

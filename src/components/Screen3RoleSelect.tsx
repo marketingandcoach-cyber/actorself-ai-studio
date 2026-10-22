@@ -33,20 +33,31 @@ export const Screen3RoleSelect: React.FC<Screen3RoleSelectProps> = ({
         </p>
       </div>
 
-      {/* Main Role Selection Card */}
+      {/* Main Role Selection Card (Fully Clickable) */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
         {/* Available Lead Role */}
-        <div className="md:col-span-8 bg-slate-900 border-2 border-sky-500 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden">
+        <div
+          onClick={onProceed}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              onProceed();
+            }
+          }}
+          className="md:col-span-8 bg-slate-900 hover:bg-slate-900/90 border-2 border-sky-500 hover:border-sky-400 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl relative overflow-hidden cursor-pointer transition-all transform hover:-translate-y-0.5 group"
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-2xl bg-sky-500/20 border border-sky-500/40 text-sky-400 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
                 <Shield className="w-6 h-6" />
               </div>
               <div>
                 <span className="text-[10px] font-mono tracking-wider text-sky-400 uppercase font-bold">
                   {selectedRole.type}
                 </span>
-                <h3 className="text-2xl font-bold font-serif text-white">
+                <h3 className="text-2xl font-bold font-serif text-white group-hover:text-sky-300 transition-colors">
                   {selectedRole.name}
                 </h3>
               </div>
@@ -77,11 +88,15 @@ export const Screen3RoleSelect: React.FC<Screen3RoleSelectProps> = ({
 
           <div className="pt-3 flex flex-wrap items-center justify-between gap-4 border-t border-slate-800/80">
             <button
-              onClick={onProceed}
-              className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-sky-950/50 transition-all cursor-pointer flex items-center gap-2 group"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onProceed();
+              }}
+              className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-sky-500 via-indigo-600 to-sky-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold text-sm shadow-xl shadow-sky-950/50 transition-all cursor-pointer flex items-center gap-2 group/btn active:scale-95"
             >
-              <span>Convertirme en protagonista</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <span>Convertirme en protagonista y continuar</span>
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
             </button>
             <span className="text-xs text-slate-400 font-mono">
               Duración: 5.0 segundos · 16:9

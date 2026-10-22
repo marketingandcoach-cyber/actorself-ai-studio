@@ -10,17 +10,37 @@ import { Screen7CinematicPlayer } from './components/Screen7CinematicPlayer';
 import { ArchitectureModal } from './components/ArchitectureModal';
 import { STORIES } from './data/stories';
 import { ParticipantProfile, CustomizationConfig, GeneratedSceneResult, StoryData, CharacterRole } from './types';
+import defaultMateoPortrait from './assets/images/protagonist_male_face_1792681375296.jpg';
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [selectedStory, setSelectedStory] = useState<StoryData>(STORIES[0]);
   const [selectedRole, setSelectedRole] = useState<CharacterRole>(STORIES[0].roles[0]);
 
-  // Participant Profile State
+  // Participant Profile State - Preloaded with high-fidelity protagonist portrait
   const [participant, setParticipant] = useState<ParticipantProfile>({
     name: 'Mateo Rivera',
-    photoDataUrl: '',
-    consentGiven: false,
+    photoDataUrl: defaultMateoPortrait,
+    consentGiven: true,
+    consentTimestamp: Date.now(),
+    actorProMode: true,
+    studioMode: false,
+    expressions: {
+      molesto: defaultMateoPortrait,
+      decidido: defaultMateoPortrait,
+      dudoso: defaultMateoPortrait,
+      sonriente: defaultMateoPortrait,
+      asustado: defaultMateoPortrait,
+      triste: defaultMateoPortrait,
+      sorprendido: defaultMateoPortrait,
+      pensativo: defaultMateoPortrait,
+    },
+    talent: {
+      stageName: 'Mateo Rivera',
+      actingInterest: false,
+      notes: '',
+      talentConsentGiven: false,
+    },
   });
 
   // Customization Configuration
@@ -56,8 +76,22 @@ export default function App() {
       <Navbar
         currentStep={currentStep}
         onNavigateStep={(step) => {
-          // Allow going to earlier steps or step 7 if video exists
-          if (step <= currentStep || (step === 7 && generatedResult)) {
+          // Steps 1 to 4 can always be accessed directly
+          if (step <= 4) {
+            setCurrentStep(step);
+          } else if (step === 5) {
+            // Step 5 requires photo and consent
+            const hasPhoto = Boolean(participant.photoDataUrl || Object.keys(participant.expressions).length > 0);
+            if (hasPhoto && participant.consentGiven) {
+              setCurrentStep(5);
+            } else {
+              setCurrentStep(4);
+            }
+          } else if (step === 6) {
+            setCurrentStep(6);
+          } else if (step === 7 && generatedResult) {
+            setCurrentStep(7);
+          } else if (step <= currentStep) {
             setCurrentStep(step);
           }
         }}
@@ -70,6 +104,16 @@ export default function App() {
           <Screen1Welcome
             onStart={() => setCurrentStep(2)}
             onOpenArchitecture={() => setIsArchitectureOpen(true)}
+            onSelectStoryAndStart={(story) => {
+              setSelectedStory(story);
+              if (story.roles && story.roles.length > 0) {
+                setSelectedRole(story.roles[0]);
+              }
+              if (story.scenes && story.scenes.length > 0) {
+                setConfig(prev => ({ ...prev, selectedSceneId: story.scenes![0].id }));
+              }
+              setCurrentStep(3);
+            }}
           />
         )}
 
@@ -77,7 +121,15 @@ export default function App() {
           <Screen2StorySelect
             stories={STORIES}
             selectedStory={selectedStory}
-            onSelectStory={setSelectedStory}
+            onSelectStory={(story) => {
+              setSelectedStory(story);
+              if (story.roles && story.roles.length > 0) {
+                setSelectedRole(story.roles[0]);
+              }
+              if (story.scenes && story.scenes.length > 0) {
+                setConfig(prev => ({ ...prev, selectedSceneId: story.scenes![0].id }));
+              }
+            }}
             onProceed={() => setCurrentStep(3)}
           />
         )}

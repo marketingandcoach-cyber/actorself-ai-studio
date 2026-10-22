@@ -1,4 +1,5 @@
 import { StoryData } from '../types';
+import { CINEMATIC_SCENES } from './scenes';
 
 export const STORIES: StoryData[] = [
   {
@@ -6,68 +7,71 @@ export const STORIES: StoryData[] = [
     title: 'ACTORSELF: Última luz de Kepler',
     tagline: 'La estrella se apaga. La tripulación depende de una sola orden.',
     genre: 'Ciencia Ficción & Aventura',
-    durationLabel: '5.0 segundos · Demo Oficial',
+    durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Interior del puente de mando de la fragata estelar Kepler-One, a 0.2 unidades astronómicas de la estrella moribunda Kepler-452.',
     synopsis: 'Durante una misión de cartografía en los confines del sector exterior, una anomalía gravitatoria arrastra a la nave hacia el horizonte de radiación de una estrella inestable. Como Comandante, debes ejecutar la maniobra de escape hiperespacial antes de que la cabina colapse.',
-    coverImage: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
+    coverImage: '/src/assets/images/kepler_scifi_poster_1792679202175.jpg',
     isAvailable: true,
-    badge: 'HISTORIA ORIGINAL DISPONIBLE',
+    badge: 'HISTORIA AUTORIZADA · SALTO HIPERESPACIAL',
     roles: [
       {
         id: 'commander',
         name: 'Comandante de la Nave',
-        rank: 'Líder de Misión Orbital',
+        rank: 'Líder de Misión Orbital (Nikolaj Coster-Waldau)',
         description: 'Máxima autoridad a bordo. Responsable de la navegación crítica, la toma de decisiones bajo fuego estelar y la activación del salto hiperespacial.',
         type: 'Protagonista Principal',
         suitColor: '#1e3a8a',
-        avatarIcon: 'Shield'
-      }
-    ]
+        avatarIcon: 'Shield',
+      },
+    ],
+    scenes: [CINEMATIC_SCENES[0]],
   },
   {
     id: 'secret-of-the-fog',
     title: 'El Secreto de la Niebla',
     tagline: 'En un archipiélago donde la niebla nunca despeja, la verdad tiene un precio.',
     genre: 'Misterio & Thriller Nórdico',
-    durationLabel: 'Próximamente en Prime Video',
+    durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Un faro centenario aislado en las costas de Noruega.',
-    synopsis: 'Un detective privado investiga la desaparición de un convoy marítimo y descubre señales cifradas en las rocas submarinas.',
-    coverImage: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
-    isAvailable: false,
-    badge: 'PRÓXIMO TÍTULO EN CATÁLOGO',
+    synopsis: 'Un detective privado investiga la desaparición de un convoy marítimo en el mar del norte y descubre señales cifradas en las rocas submarinas.',
+    coverImage: '/src/assets/images/nordic_fog_poster_1792679202682.jpg',
+    isAvailable: true,
+    badge: 'HISTORIA AUTORIZADA · INTERROGATORIO NOIR',
     roles: [
       {
         id: 'detective',
-        name: 'Detective Asignado',
-        rank: 'Investigador Principal',
-        description: 'Lidera la reconstrucción de los hechos y la búsqueda en el faro.',
-        type: 'Protagonista',
+        name: 'Inspector Miller',
+        rank: 'Investigador Principal (Mads Mikkelsen)',
+        description: 'Lidera la reconstrucción de los hechos y la confrontación en el faro bajo la tormenta.',
+        type: 'Protagonista Principal',
         suitColor: '#334155',
-        avatarIcon: 'Compass'
-      }
-    ]
+        avatarIcon: 'Compass',
+      },
+    ],
+    scenes: [CINEMATIC_SCENES[1]],
   },
   {
     id: 'neon-city-2099',
     title: 'Ciudad Neón 2099',
     tagline: 'En la megalópolis subterránea, tu memoria es la única mercancía que importa.',
     genre: 'Cyberpunk & Acción',
-    durationLabel: 'Próximamente en Prime Video',
+    durationLabel: '15.0s · Escena Cinematográfica Autorizada',
     setting: 'Nivel 14 de Neo-Shinjuku, rascacielos sumergidos bajo lluvia ácida.',
-    synopsis: 'Un mensajero de datos intercepta un nanodisco con la clave para restaurar el suministro de energía limpia de toda la ciudad.',
-    coverImage: 'https://images.unsplash.com/photo-1508739773434-c26b3d09e071?auto=format&fit=crop&w=800&q=80',
-    isAvailable: false,
-    badge: 'EN DESARROLLO DE DERECHOS',
+    synopsis: 'Un mensajero de datos intercepta un nanodisco con la clave para restaurar el suministro de energía limpia de toda la ciudad mientras es perseguido por drones corporativos.',
+    coverImage: '/src/assets/images/neon_cyberpunk_poster_1792679204523.jpg',
+    isAvailable: true,
+    badge: 'HISTORIA AUTORIZADA · FUGA EN CORNISA',
     roles: [
       {
         id: 'runner',
-        name: 'Mensajero Hacker',
-        rank: 'Infiltrado',
-        description: 'Especialista en evasión de drones corporativos.',
-        type: 'Protagonista',
+        name: 'Agente Kaelen',
+        rank: 'Infiltrado / Hacker (Keanu Reeves)',
+        description: 'Especialista en evasión de drones corporativos en las cornisas iluminadas por neones.',
+        type: 'Protagonista Principal',
         suitColor: '#059669',
-        avatarIcon: 'Zap'
-      }
-    ]
-  }
+        avatarIcon: 'Zap',
+      },
+    ],
+    scenes: [CINEMATIC_SCENES[2]],
+  },
 ];
