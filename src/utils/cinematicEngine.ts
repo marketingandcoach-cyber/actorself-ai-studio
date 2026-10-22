@@ -240,7 +240,7 @@ export async function generateCinematicScene(
 
   const startTime = performance.now();
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     let resolved = false;
 
     const finishRecording = () => {
