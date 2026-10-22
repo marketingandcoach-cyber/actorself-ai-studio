@@ -77,6 +77,61 @@ export const Screen4IdentityConsent: React.FC<Screen4IdentityConsentProps> = ({
   const [selectedEmotionTab, setSelectedEmotionTab] = useState<EmotionKey>('molesto');
   const [showTalentDrawer, setShowTalentDrawer] = useState<boolean>(false);
 
+  // MediaPipe runs locally on the device; no image is uploaded to a cloud API.
+  const [faceAiBusy, setFaceAiBusy] = useState(false);
+  const [faceAiResult, setFaceAiResult] = useState<string | null>(null);
+
+  const analyzeFaceLocally = async () => {
+    if (!participant.consentGiven) {
+      setValidationError('Marca primero el consentimiento para analizar tu rostro con IA local.');
+      return;
+    }
+    if (!participant.photoDataUrl) {
+      setValidationError('Primero captura o sube una fotografía de rostro.');
+      return;
+    }
+    setFaceAiBusy(true);
+    setFaceAiResult(null);
+    setValidationError(null);
+    let detector: import('@mediapipe/tasks-vision').FaceLandmarker | undefined;
+    try {
+      const { FaceLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+      );
+      detector = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+          delegate: 'CPU',
+        },
+        runningMode: 'IMAGE',
+        numFaces: 1,
+        outputFaceBlendshapes: true,
+      });
+      const image = new Image();
+      image.src = participant.photoDataUrl;
+      await image.decode();
+      const result = detector.detect(image);
+      if (!result.faceLandmarks.length) {
+        setFaceAiResult('No se detectó un rostro. Prueba una foto frontal, bien iluminada.');
+      } else {
+        const points = result.faceLandmarks[0].length;
+        const expressions = result.faceBlendshapes[0]?.categories || [];
+        const strongest = [...expressions].sort((a, b) => b.score - a.score)
+          .filter((c) => c.categoryName !== 'neutral').slice(0, 3)
+          .map((c) => c.categoryName + ' ' + Math.round(c.score * 100) + '%');
+        setFaceAiResult('IA local activa: ' + points + ' puntos faciales detectados. '
+          + (strongest.length ? 'Señales: ' + strongest.join(', ') + '.' : 'Rostro detectado.'));
+      }
+    } catch (error) {
+      console.warn('MediaPipe local face analysis unavailable:', error);
+      setValidationError('No se pudo cargar MediaPipe. Comprueba tu conexión inicial e inténtalo de nuevo.');
+    } finally {
+      detector?.close();
+      setFaceAiBusy(false);
+    }
+  };
+
   // Stop camera tracks cleanly on unmount
   useEffect(() => {
     return () => {
@@ -596,6 +651,19 @@ export const Screen4IdentityConsent: React.FC<Screen4IdentityConsentProps> = ({
           <span>{validationError}</span>
         </div>
       )}
+
+      <section className="rounded-2xl border border-sky-700/50 bg-sky-950/30 p-4 space-y-2" aria-label="Análisis facial con IA gratuita">
+        <div className="flex items-center gap-2 text-sky-300 font-semibold text-sm">
+          <Scan className="w-4 h-4" /> IA facial gratuita · MediaPipe
+        </div>
+        <p className="text-xs text-slate-300">Analiza tu foto en este dispositivo: puntos faciales y señales de expresión. No sustituye todavía el rostro de forma fotorrealista. La primera ejecución descarga el modelo.</p>
+        <button type="button" disabled={faceAiBusy || !participant.consentGiven || !participant.photoDataUrl}
+          onClick={analyzeFaceLocally}
+          className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:opacity-40 text-white text-sm font-semibold">
+          {faceAiBusy ? 'Analizando rostro…' : 'Analizar mi rostro con IA'}
+        </button>
+        {faceAiResult && <p role="status" className="text-xs text-emerald-300">{faceAiResult}</p>}
+      </section>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
