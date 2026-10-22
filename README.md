@@ -70,3 +70,6 @@ Use only photographs you have permission to use. The current demo is built aroun
 **Repository access:** Private, shared with approved hackathon reviewers. This repository is not offered under an open-source license.
 
 ACTORSELF — Independent concept by Ruth García.
+
+
+<!-- GitHub Pages: redeploy Vite production build after switching Pages source to GitHub Actions. -->
