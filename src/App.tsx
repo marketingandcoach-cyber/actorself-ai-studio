@@ -21,8 +21,8 @@ export default function App() {
   const [participant, setParticipant] = useState<ParticipantProfile>({
     name: 'Mateo Rivera',
     photoDataUrl: defaultMateoPortrait,
-    consentGiven: true,
-    consentTimestamp: Date.now(),
+    consentGiven: false,
+    consentTimestamp: undefined,
     actorProMode: true,
     studioMode: false,
     expressions: {
