@@ -173,6 +173,61 @@ export async function generateCinematicScene(
     }
   }
 
+  // Optional MediaPipe person segmentation: remove portrait background before
+  // cinematic face projection. Failure never prevents the film from rendering.
+  if (fallbackImg && participant.consentGiven) {
+    onProgress?.(12, 'IA: separando el personaje del fondo…');
+    let segmenter: import('@mediapipe/tasks-vision').ImageSegmenter | undefined;
+    try {
+      const { ImageSegmenter, FilesetResolver } = await import('@mediapipe/tasks-vision');
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+      );
+      segmenter = await ImageSegmenter.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/1/selfie_segmenter.tflite',
+          delegate: 'CPU',
+        },
+        runningMode: 'IMAGE',
+        outputCategoryMask: true,
+        outputConfidenceMasks: false,
+      });
+      const original = fallbackImg;
+      const result = segmenter.segment(original);
+      const mask = result.categoryMask;
+      if (mask) {
+        const width = mask.width;
+        const height = mask.height;
+        const values = mask.getAsUint8Array();
+        const output = document.createElement('canvas');
+        output.width = width;
+        output.height = height;
+        const oc = output.getContext('2d', { willReadFrequently: true });
+        if (oc) {
+          oc.drawImage(original, 0, 0, width, height);
+          const pixels = oc.getImageData(0, 0, width, height);
+          for (let i = 0; i < values.length; i++) {
+            // Selfie segmenter labels background 0 and person 1.
+            pixels.data[i * 4 + 3] = values[i] === 0 ? 0 : 255;
+          }
+          oc.putImageData(pixels, 0, 0);
+          const segmented = new Image();
+          segmented.src = output.toDataURL('image/png');
+          await segmented.decode();
+          fallbackImg = segmented;
+          for (const key of emotionKeys) {
+            if (loadedEmotions[key] === original) loadedEmotions[key] = segmented;
+          }
+        }
+      }
+      result.close();
+    } catch (error) {
+      console.warn('Optional on-device segmentation unavailable:', error);
+    } finally {
+      segmenter?.close();
+    }
+  }
+
   // 3. Setup offscreen 1080p canvas (1920x1080)
   const canvas = document.createElement('canvas');
   canvas.width = 1920;
