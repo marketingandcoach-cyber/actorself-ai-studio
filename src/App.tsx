@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaceToVideoStudio } from './components/FaceToVideoStudio';
 import { Navbar } from './components/Navbar';
 import { Screen1Welcome } from './components/Screen1Welcome';
 import { Screen2StorySelect } from './components/Screen2StorySelect';
@@ -14,6 +15,7 @@ import defaultMateoPortrait from './assets/images/protagonist_male_face_17926813
 
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [faceStudioOpen, setFaceStudioOpen] = useState(false);
   const [selectedStory, setSelectedStory] = useState<StoryData>(STORIES[0]);
   const [selectedRole, setSelectedRole] = useState<CharacterRole>(STORIES[0].roles[0]);
 
@@ -98,6 +100,12 @@ export default function App() {
         onOpenArchitecture={() => setIsArchitectureOpen(true)}
       />
 
+      <div className="max-w-5xl mx-auto px-4 pt-6">
+        <button type="button" onClick={() => setFaceStudioOpen(value => !value)} className="w-full rounded-xl border border-sky-500 bg-sky-950 px-5 py-4 font-bold text-sky-200 hover:bg-sky-900">
+          {faceStudioOpen ? 'Cerrar estudio Face-to-Video' : '🎬 NUEVO: Transferir mi rostro a un video con IA gratuita'}
+        </button>
+      </div>
+      {faceStudioOpen && <div className="mt-5"><FaceToVideoStudio /></div>}
       {/* Main 7-Screen User Flow */}
       <main className="flex-1">
         {currentStep === 1 && (
