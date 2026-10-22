@@ -110,6 +110,69 @@ export async function generateCinematicScene(
 
   const usedExpressionsCount = Object.keys(loadedEmotions).length;
 
+  // ACTORSELF Face-to-Video: use real AI face landmarks to center the actor's
+  // facial features before the existing pose-aware cinematic compositor animates them.
+  // Runs entirely in the browser; original images are retained on detection failure.
+  if (fallbackImg && participant.consentGiven) {
+    onProgress?.(8, 'IA: adaptando rostro al personaje cinematográfico…');
+    let landmarker: import('@mediapipe/tasks-vision').FaceLandmarker | undefined;
+    try {
+      const { FaceLandmarker, FilesetResolver } = await import('@mediapipe/tasks-vision');
+      const vision = await FilesetResolver.forVisionTasks(
+        'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm'
+      );
+      landmarker = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+          delegate: 'CPU',
+        },
+        runningMode: 'IMAGE',
+        numFaces: 1,
+      });
+      const faceCache = new Map<HTMLImageElement, HTMLImageElement>();
+      const alignFace = async (source: HTMLImageElement): Promise<HTMLImageElement> => {
+        const cached = faceCache.get(source);
+        if (cached) return cached;
+        const landmarks = landmarker!.detect(source).faceLandmarks[0];
+        if (!landmarks?.length) return source;
+        const w = source.naturalWidth;
+        const h = source.naturalHeight;
+        const minX = Math.min(...landmarks.map(p => p.x)) * w;
+        const maxX = Math.max(...landmarks.map(p => p.x)) * w;
+        const minY = Math.min(...landmarks.map(p => p.y)) * h;
+        const maxY = Math.max(...landmarks.map(p => p.y)) * h;
+        const faceW = maxX - minX;
+        const faceH = maxY - minY;
+        if (faceW < 5 || faceH < 5) return source;
+        // Include hair, chin and cheeks; center the actual detected face.
+        const side = Math.max(faceW * 1.85, faceH * 1.55);
+        const cx = (minX + maxX) / 2;
+        const cy = (minY + maxY) / 2 - faceH * 0.04;
+        const output = document.createElement('canvas');
+        output.width = 640;
+        output.height = 640;
+        const outputCtx = output.getContext('2d');
+        if (!outputCtx) return source;
+        outputCtx.drawImage(source, cx - side / 2, cy - side / 2, side, side, 0, 0, 640, 640);
+        const aligned = new Image();
+        aligned.src = output.toDataURL('image/jpeg', 0.93);
+        await aligned.decode();
+        faceCache.set(source, aligned);
+        return aligned;
+      };
+      const originalFallback = fallbackImg;
+      fallbackImg = await alignFace(originalFallback);
+      for (const key of emotionKeys) {
+        const image = loadedEmotions[key];
+        if (image) loadedEmotions[key] = image === originalFallback ? fallbackImg : await alignFace(image);
+      }
+    } catch (error) {
+      console.warn('Face-to-video AI alignment unavailable; using original photo:', error);
+    } finally {
+      landmarker?.close();
+    }
+  }
+
   // 3. Setup offscreen 1080p canvas (1920x1080)
   const canvas = document.createElement('canvas');
   canvas.width = 1920;
