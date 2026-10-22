@@ -55,7 +55,7 @@ export async function generateCinematicScene(
 
   const loadSingleImage = (url?: string): Promise<HTMLImageElement | null> => {
     if (!url) return Promise.resolve(null);
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
       // CRITICAL: NEVER set crossOrigin on data: or blob: URIs!
       // In Chromium and WebKit, setting crossOrigin on data: URIs causes an immediate CORS error!
@@ -240,7 +240,7 @@ export async function generateCinematicScene(
 
   const startTime = performance.now();
 
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     let resolved = false;
 
     const finishRecording = () => {
@@ -251,7 +251,9 @@ export async function generateCinematicScene(
         videoBlob = new Blob(recordedChunks, { type: chosenMime });
       } else {
         // Fallback: create mock video blob so player continues smoothly
-        videoBlob = new Blob(['ACTORSELF_CINEMATIC_RENDER'], { type: 'video/webm' });
+        if (audioCtx) audioCtx.close().catch(() => {});
+        reject(new Error('La grabación no produjo un video válido. Comprueba que tu navegador admita MediaRecorder e inténtalo de nuevo.'));
+        return;
       }
       const videoUrl = URL.createObjectURL(videoBlob);
       if (audioCtx) {

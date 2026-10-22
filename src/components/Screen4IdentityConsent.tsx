@@ -634,8 +634,8 @@ export const Screen4IdentityConsent: React.FC<Screen4IdentityConsentProps> = ({
                   onUpdateParticipant({
                     name: 'Mateo Rivera',
                     photoDataUrl: defaultMateoPortrait,
-                    consentGiven: true,
-                    consentTimestamp: Date.now(),
+                    consentGiven: false,
+                    consentTimestamp: undefined,
                     expressions: {
                       molesto: defaultMateoPortrait,
                       decidido: defaultMateoPortrait,
@@ -668,8 +668,8 @@ export const Screen4IdentityConsent: React.FC<Screen4IdentityConsentProps> = ({
                   onUpdateParticipant({
                     name: 'Elena Vance',
                     photoDataUrl: defaultElenaPortrait,
-                    consentGiven: true,
-                    consentTimestamp: Date.now(),
+                    consentGiven: false,
+                    consentTimestamp: undefined,
                     expressions: {
                       molesto: defaultElenaPortrait,
                       decidido: defaultElenaPortrait,
