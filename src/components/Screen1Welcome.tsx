@@ -341,10 +341,16 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
 
         {/* ================= HIGH-IMPACT HERO BANNER ================= */}
         <div className="relative rounded-3xl overflow-hidden border border-slate-800/80 shadow-2xl bg-slate-900/60 aspect-[21/9]">
-          <img
-            src={new URL("../assets/images/actorself_hero_cinematic_1792679203790.jpg", import.meta.url).href}
-            alt="ACTORSELF: escena conceptual de supervivencia cinematográfica"
-            className="w-full h-full object-cover"
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src={`${import.meta.env.BASE_URL}videos/ultima-evacuacion.mp4`}
+            poster={new URL("../assets/images/actorself_hero_cinematic_1792679203790.jpg", import.meta.url).href}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="ACTORSELF: Última evacuación, escena cinematográfica de supervivencia"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
           <div className="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
