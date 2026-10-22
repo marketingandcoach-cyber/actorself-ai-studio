@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { CinematicPreview } from './CinematicPreview';
 import { ArrowRight, CheckCircle2, Clock, Film, Sparkles, Play, Shield, Compass, Zap } from 'lucide-react';
 import { StoryData } from '../types';
 
@@ -15,6 +16,7 @@ export const Screen2StorySelect: React.FC<Screen2StorySelectProps> = ({
   onSelectStory,
   onProceed,
 }) => {
+  const [previewStory, setPreviewStory] = useState<StoryData | null>(null);
   const handleSelectStory = (story: StoryData) => {
     onSelectStory(story);
     onProceed();
@@ -121,6 +123,7 @@ export const Screen2StorySelect: React.FC<Screen2StorySelectProps> = ({
                 </div>
               </div>
 
+              <button type="button" onClick={(e) => { e.stopPropagation(); setPreviewStory(story); }} className="w-full flex items-center justify-center gap-2 rounded-xl border border-sky-500/50 bg-sky-500/10 py-3 text-xs font-bold uppercase tracking-wider text-sky-200 hover:bg-sky-500/20"><Play size={15} /> Ver tráiler cinematográfico</button>
               {/* Action Button */}
               <div className="pt-2 border-t border-slate-800">
                 <button
@@ -145,6 +148,7 @@ export const Screen2StorySelect: React.FC<Screen2StorySelectProps> = ({
         })}
       </div>
 
+      {previewStory && <CinematicPreview story={previewStory} onClose={() => setPreviewStory(null)} onStar={() => { handleSelectStory(previewStory); setPreviewStory(null); }} />}
       {/* Bottom Info Banner */}
       <div className="p-4 rounded-2xl bg-sky-950/30 border border-sky-800/40 text-xs text-sky-200 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
