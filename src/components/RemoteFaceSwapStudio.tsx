@@ -50,15 +50,21 @@ export function RemoteFaceSwapStudio({ initialVideo, initialVideoUrl }: { initia
       cancelRef.current=()=>{void job.cancel();};
       timer=setTimeout(()=>{expired=true;void job.cancel();app.close();},300000);
       let result='';
+      let finalLog='';
       for await(const event of job){
         if(!mounted.current)break;
         if(event.type==='status'){
           if(event.stage==='error')throw new Error(String(event.message||'Error del servicio'));
           update(event.stage==='pending'?'Esperando turno en la GPU gratuita…':'IA sustituyendo el rostro en la escena…');
         }
-        if(event.type==='data')result=resultVideoUrl(event.data);
+        if(event.type==='data'){
+          const data=event.data as unknown[];
+          if(typeof data?.[2]==='string')finalLog=data[2];
+          const slot=data?.[1] as {value?:{video?:unknown};video?:unknown}|null;
+          if(slot?.video||slot?.value?.video)result=resultVideoUrl(data);
+        }
       }
-      if(expired||!result)throw new Error('Sin resultado');
+      if(expired||!result)throw new Error(finalLog||'Sin resultado');
       if(mounted.current){setOutput(result);update('Video generado por IA. Revisa la semejanza y los movimientos antes de compartirlo.');}
     }catch(error){console.warn('FaceSwap '+phase+': '+String(error instanceof Error?error.message:error).replace(/https?:\/\/\S+/g,'[URL]').replace(/\/tmp\/\S+/g,'[file]').slice(0,300));update(expired?'La espera superó 5 minutos. Comprueba la herramienta externa antes de repetir: la solicitud podría seguir procesándose.':remoteErrorMessage(error));}
     finally{if(timer)clearTimeout(timer);cancelRef.current=null;clientRef.current?.close();clientRef.current=null;active.current=false;if(mounted.current)setBusy(false);}

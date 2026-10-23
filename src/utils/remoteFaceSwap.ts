@@ -1,7 +1,8 @@
 export const FACE_SWAP_HOST = 'https://poxvnn-faceswap-zero.hf.space';
 export function resultVideoUrl(data: unknown): string {
   if (!Array.isArray(data)) throw new Error('Sin video');
-  const video = data[1]?.video;
+  const slot = data[1]?.value ?? data[1];
+  const video = slot?.video;
   const value = typeof video === 'string' ? video : video?.url;
   if (typeof value !== 'string') throw new Error('Sin video');
   const url = new URL(value, FACE_SWAP_HOST);

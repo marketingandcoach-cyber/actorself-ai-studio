@@ -6,3 +6,5 @@ for(const data of [null,[],[null,{video:{url:'https://example.com/video.mp4'}}],
 assert.match(remoteErrorMessage(new Error('GPU quota exceeded')),/cuota gratuita/);
 assert.ok(!remoteErrorMessage(new Error('private-photo-url')).includes('private-photo-url'));
 console.log('Remote face swap: valid outputs, invalid URLs, missing video and quota errors passed.');
+
+assert.equal(resultVideoUrl([null,{__type__:'update',value:{video:{url:'https://poxvnn-faceswap-zero.hf.space/gradio_api/file=/tmp/result.mp4'}}}]),'https://poxvnn-faceswap-zero.hf.space/gradio_api/file=/tmp/result.mp4');
