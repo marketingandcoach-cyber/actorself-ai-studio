@@ -36,7 +36,7 @@ export function TestSceneCatalog() {
       <p className="text-xs tracking-[0.25em] uppercase text-sky-400 font-semibold">ACTORSELF ORIGINALS · DEMO</p>
       <h2 className="text-3xl font-bold text-white">Catálogo de escenas de prueba</h2>
       <p className="text-slate-300">11 historias. 11 oportunidades de convertirte en protagonista. Explora el argumento, asocia el video original y prueba tu rostro en una escena en movimiento.</p>
-      <p className="text-xs text-amber-200">Prototipo experimental: transferencia facial 2D con seguimiento, no sustitución neuronal fotorrealista. Los videos publicados en /scenes se cargan automáticamente; si aún no están alojados, puedes seleccionar los MP4 desde tu dispositivo.</p>
+      <p className="text-xs text-amber-200">IA en línea: sustitución neuronal de rostro durante 5 segundos, con consentimiento y cuota gratuita. La composición 2D local permanece como alternativa experimental. Los videos publicados en /scenes se cargan automáticamente; si aún no están alojados, puedes seleccionar los MP4 desde tu dispositivo.</p>
       <label className="block rounded-xl border border-sky-600 bg-sky-950/50 p-4 text-sm font-semibold cursor-pointer">🎞️ Cargar los 11 videos de una sola vez (selección múltiple)<input type="file" accept="video/mp4" multiple className="block mt-2 text-xs w-full" onChange={e=>importVideos(e.target.files)}/></label>
       {notice && <p role="status" className="text-sm text-sky-200">{notice}</p>}
     </header>
