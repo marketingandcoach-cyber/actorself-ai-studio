@@ -17,7 +17,7 @@ import defaultMateoPortrait from './assets/images/protagonist_male_face_17926813
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [faceStudioOpen, setFaceStudioOpen] = useState(false);
-  const [showLegacyFlow, setShowLegacyFlow] = useState(false);
+  const [showTestCatalog, setShowTestCatalog] = useState(false);
   const [selectedStory, setSelectedStory] = useState<StoryData>(STORIES[0]);
   const [selectedRole, setSelectedRole] = useState<CharacterRole>(STORIES[0].roles[0]);
 
@@ -108,10 +108,12 @@ export default function App() {
         </button>
       </div>
       {faceStudioOpen && <div className="mt-5"><FaceToVideoStudio /></div>}
-      <TestSceneCatalog />
-      <div className="max-w-5xl mx-auto px-4 pb-4"><button type="button" onClick={() => setShowLegacyFlow(v => !v)} className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300">{showLegacyFlow ? 'Ocultar simulador anterior' : 'Ver simulador anterior (escenarios ilustrados, no metraje real)'}</button></div>
-      {/* Legacy seven-step synthetic storyboard flow; not real movie footage. */}
-      {showLegacyFlow && <main className="flex-1">
+      <div className="max-w-5xl mx-auto px-4 pt-4 pb-3">
+        <button type="button" onClick={() => { setShowTestCatalog(v => !v); window.scrollTo({top:0,behavior:'smooth'}); }} className="rounded-xl border border-sky-700 bg-slate-900 px-5 py-3 text-sm font-semibold text-sky-200 hover:bg-sky-950">
+          {showTestCatalog ? '← Volver a ACTORSELF' : '🎞️ Explorar catálogo de escenas de prueba (11 videos)'}
+        </button>
+      </div>
+      {showTestCatalog ? <TestSceneCatalog /> : <main className="flex-1">
         {currentStep === 1 && (
           <Screen1Welcome
             onStart={() => setCurrentStep(2)}
@@ -211,7 +213,7 @@ export default function App() {
             <span className="text-slate-400">Prototipo Funcional para Hackatón de Amazon</span>
           </div>
           <div className="text-[11px] font-mono text-slate-500">
-            Catálogo original de escenas de prueba · 11 géneros
+            ACTORSELF · Enter the Story
           </div>
         </div>
       </footer>
