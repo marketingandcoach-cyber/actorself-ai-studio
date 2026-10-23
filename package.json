@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
-    "test": "tsx tests/actorself.test.ts",
+    "test": "tsx tests/actorself.test.ts && tsx tests/remote-face-swap.test.ts",
     "check": "npm run lint && npm run test && npm run build"
   },
   "dependencies": {
@@ -24,7 +24,8 @@
     "express": "^4.21.2",
     "dotenv": "^17.2.3",
     "motion": "^12.23.24",
-    "@mediapipe/tasks-vision": "^0.10.22"
+    "@mediapipe/tasks-vision": "^0.10.22",
+    "@gradio/client": "2.7.1"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

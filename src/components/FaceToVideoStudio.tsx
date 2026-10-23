@@ -1,3 +1,4 @@
+import { RemoteFaceSwapStudio } from './RemoteFaceSwapStudio';
 import React, { useEffect, useRef, useState } from 'react';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
 
@@ -223,7 +224,7 @@ export function FaceToVideoStudio({ initialVideo, initialVideoUrl }: { initialVi
     }
   };
 
-  return <section className="mx-auto max-w-5xl p-5 sm:p-8 rounded-3xl border border-sky-800 bg-slate-900 space-y-4">
+  return <><RemoteFaceSwapStudio initialVideo={initialVideo} initialVideoUrl={initialVideoUrl}/><details className="mx-auto max-w-5xl mt-4"><summary className="cursor-pointer text-sm text-slate-400 p-3">Abrir composición 2D local experimental</summary><section className="mx-auto max-w-5xl p-5 sm:p-8 rounded-3xl border border-sky-800 bg-slate-900 space-y-4">
     <h2 className="text-2xl font-bold text-sky-300">Face-to-Video · IA gratuita</h2>
     <p className="text-sm text-slate-300">Transfiere tu rostro a un video autorizado con seguimiento facial de MediaPipe. Funciona localmente, sin AWS. Es una composición 2D experimental, no un deepfake fotorrealista.</p>
     <div className="grid sm:grid-cols-2 gap-3">
@@ -237,5 +238,6 @@ export function FaceToVideoStudio({ initialVideo, initialVideoUrl }: { initialVi
     <div className="rounded-xl border border-sky-700 bg-black p-2"><p className="text-xs text-sky-200 mb-2">Vista previa del resultado procesado · nunca el video original</p><canvas ref={canvasRef} className="w-full rounded-xl bg-black" /></div>
     {resultUrl && <p className="text-sm text-sky-200">Cobertura de transferencia facial: {coverage}% de los fotogramas.</p>}
     {resultUrl && <div className="space-y-2"><video className="w-full" src={resultUrl} controls playsInline/><a href={resultUrl} download="actorself-face-to-video.webm" className="inline-block rounded-xl px-5 py-3 bg-emerald-700 font-semibold">Descargar video generado</a></div>}
-  </section>;
+  </section></details></>;
 }
+
