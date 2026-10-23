@@ -21,6 +21,7 @@ export function FaceToVideoStudio() {
   const [working, setWorking] = useState(false);
   const [message, setMessage] = useState('Carga tu foto y un video autorizado para comenzar.');
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  const [coverage, setCoverage] = useState(0);
   const resultUrlRef = useRef<string | null>(null);
 
   useEffect(() => () => {
@@ -69,6 +70,7 @@ export function FaceToVideoStudio() {
     if (resultUrlRef.current) URL.revokeObjectURL(resultUrlRef.current);
     resultUrlRef.current = null;
     setResultUrl(null);
+    setCoverage(0);
     let sourceDetector: FaceLandmarker | null = null;
     try {
       const fileset = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm');
@@ -98,7 +100,9 @@ export function FaceToVideoStudio() {
           const url = URL.createObjectURL(blob);
           resultUrlRef.current = url;
           setResultUrl(url);
-          setMessage(detectedFrames ? 'Video generado: ' + drawnFrames + ' fotogramas compuestos; ' + misses + ' detecciones perdidas (suavizadas cuando fue posible).' : 'No se detectó un rostro en el video. No se pudo transferir la identidad.');
+          const percentage = Math.round(drawnFrames / Math.max(1, totalFrames) * 100);
+          setCoverage(percentage);
+          setMessage(detectedFrames ? 'Video procesado: rostro integrado en ' + percentage + '% de los fotogramas. ' + (percentage < 90 ? 'La detección es incompleta; usa un video con el rostro visible.' : 'Revisa la vista previa antes de descargar.') : 'No se detectó un rostro en el video. No se pudo transferir la identidad.');
         } else setMessage('No se generó un video válido.');
         setWorking(false);
         detectorRef.current?.close();
@@ -122,6 +126,7 @@ export function FaceToVideoStudio() {
       let misses = 0;
       let detectedFrames = 0;
       let drawnFrames = 0;
+      let totalFrames = 0;
       const frame = () => {
         if (video.paused || video.ended) return;
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -141,6 +146,7 @@ export function FaceToVideoStudio() {
         // Keep the last tracked pose through temporary occlusions / detection gaps.
         // Without temporal persistence the output flashes between original actor and user face.
         const detected = timeMs - lastDetectedAt <= 1500 ? lastFace : null;
+        totalFrames++;
         if (detected) {
             drawnFrames++;
             const box = bounds(detected);
@@ -162,6 +168,7 @@ export function FaceToVideoStudio() {
           }
         rafRef.current = requestAnimationFrame(frame);
       };
+      // Keep the source video hidden: users should only see the composited output.
       video.currentTime = 0;
       await new Promise<void>(resolve => {
         if (video.readyState >= 2 && video.currentTime === 0) resolve();
@@ -192,11 +199,12 @@ export function FaceToVideoStudio() {
       <label className="text-sm">1. Tu fotografía<input className="block mt-2 w-full text-xs" type="file" accept="image/*" onChange={e => loadPortrait(e.target.files?.[0])}/></label>
       <label className="text-sm">2. Video de la escena<input className="block mt-2 w-full text-xs" type="file" accept="video/*" onChange={e => loadVideo(e.target.files?.[0])}/></label>
     </div>
-    <video ref={videoRef} className="w-full max-h-64 rounded-lg bg-black" controls playsInline onLoadedMetadata={() => {setVideoReady(true);setMessage('Video listo.');}}/>
+    <video ref={videoRef} className="hidden" muted playsInline preload="auto" onLoadedMetadata={() => {setVideoReady(true);setMessage('Video de origen cargado. Pulsa Transferir para ver el resultado procesado.');}}/>
     <label className="flex gap-2 items-start text-xs"><input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}/> Confirmo que tengo consentimiento para usar el rostro y autorización para transformar este video.</label>
     <button className="rounded-xl px-5 py-3 bg-sky-600 disabled:opacity-40 font-semibold" disabled={!portraitReady || !videoReady || !consent || working} onClick={run}>{working ? 'Procesando video…' : 'Transferir rostro al video con IA'}</button>
     <p role="status" className="text-sm text-sky-200">{message}</p>
-    <canvas ref={canvasRef} className="w-full rounded-xl bg-black" />
+    <div className="rounded-xl border border-sky-700 bg-black p-2"><p className="text-xs text-sky-200 mb-2">Vista previa del resultado procesado · nunca el video original</p><canvas ref={canvasRef} className="w-full rounded-xl bg-black" /></div>
+    {resultUrl && <p className="text-sm text-sky-200">Cobertura de transferencia facial: {coverage}% de los fotogramas.</p>}
     {resultUrl && <div className="space-y-2"><video className="w-full" src={resultUrl} controls playsInline/><a href={resultUrl} download="actorself-face-to-video.webm" className="inline-block rounded-xl px-5 py-3 bg-emerald-700 font-semibold">Descargar video generado</a></div>}
   </section>;
 }
