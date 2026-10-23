@@ -1,6 +1,8 @@
 # ACTORSELF: AKOOL video face swap
 
-Status: manual GitHub Actions integration implemented; live generation is NOT yet validated. This does not connect the GitHub Pages upload button to AKOOL. Existing design, scenes and local rendering remain unchanged.
+Status: manual GitHub Actions integration implemented; live generation is NOT yet validated.
+
+Account verification on October 23, 2026: clicking Create API Credential in the signed-in Free workspace opened an upgrade modal. The displayed Pro Max plan lists Access to API. No credential was issued, no subscription was activated and no credits were consumed. Live testing is blocked by API account entitlement; the 20 gift credits alone did not unlock credential creation. This does not connect the GitHub Pages upload button to AKOOL. Existing design, scenes and local rendering remain unchanged.
 
 ## Setup
 
