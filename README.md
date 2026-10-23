@@ -2,6 +2,10 @@
 
 **Amazon hackathon submission companion repository.** This is the audiovisual prototype developed in Google AI Studio. The related visual/UX web prototype is maintained separately at [actorself-demo](https://github.com/marketingandcoach-cyber/actorself-demo).
 
+## Live face swap integration
+
+The catalog studio now connects directly to FaceSwap Zero through the Gradio API. Open the live demo, explore the 11-scene test catalog, select a scene, upload a frontal portrait, authorize external processing and generate a five-second clip. Free shared GPU quota and provider availability apply; identity similarity varies. See [HUGGINGFACE_INTEGRATION.md](HUGGINGFACE_INTEGRATION.md). Deployment/browser verification is reported separately; provider-only generation has succeeded.
+
 ## Latest integration progress for judges
 
 - Live ACTORSELF demo: https://marketingandcoach-cyber.github.io/actorself-ai-studio/

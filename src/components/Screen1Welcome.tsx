@@ -323,17 +323,17 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
               <span>Garantía de Privacidad Biométrica</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              Tus fotos nunca salen de tu dispositivo
+              Tú decides cómo se procesa tu foto
             </h2>
             <p className="text-sm text-slate-300 leading-relaxed">
-              ACTORSELF procesa cada fotograma exclusivamente en la memoria volátil de tu navegador (HTML5 Canvas y WebGL). Al cerrar la pestaña o pulsar "Purgar Memoria", tus datos se destruyen de inmediato.
+              El compositor local funciona en tu navegador. La opción «IA en línea» envía la foto y la escena al servicio comunitario FaceSwap Zero en Hugging Face, únicamente tras tu consentimiento. Sus archivos y resultados se alojan fuera de ACTORSELF.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 border-t border-slate-800">
             <div className="space-y-1.5">
-              <h4 className="text-sm font-bold text-white">Cero Retención en la Nube</h4>
-              <p className="text-xs text-slate-400">Sin bases de datos de rostros ni almacenamiento permanente de identidad.</p>
+              <h4 className="text-sm font-bold text-white">Procesamiento con consentimiento</h4>
+              <p className="text-xs text-slate-400">No envíes material confidencial. Purgar la memoria local no elimina los archivos enviados al servicio externo.</p>
             </div>
             <div className="space-y-1.5">
               <h4 className="text-sm font-bold text-white">Metraje Autorizado</h4>
