@@ -1,0 +1,42 @@
+name: ACTORSELF - AKOOL Face Swap
+on:
+  workflow_dispatch:
+    inputs:
+      consent:
+        description: 'I own/have consent for this face and video, and authorize sending both to AKOOL'
+        required: true
+        type: boolean
+        default: false
+      confirm_credits:
+        description: 'I verified available free credits cover this clip; no purchase or upgrade'
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: actorself-akool
+  cancel-in-progress: false
+jobs:
+  generate:
+    if: github.ref == 'refs/heads/main' && inputs.consent && inputs.confirm_credits
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Generate authorized face swap
+        env:
+          AKOOL_API_KEY: ${{ secrets.AKOOL_API_KEY }}
+          SOURCE_IMAGE_URL: ${{ secrets.AKOOL_SOURCE_IMAGE_URL }}
+          TARGET_VIDEO_URL: ${{ secrets.AKOOL_TARGET_VIDEO_URL }}
+          CONSENT: 'true'
+        run: node scripts/akool-face-swap.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: actorself-face-swap
+          path: akool-output/actorself-face-swap.mp4
+          if-no-files-found: error
+          retention-days: 1

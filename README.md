@@ -2,6 +2,14 @@
 
 **Amazon hackathon submission companion repository.** This is the audiovisual prototype developed in Google AI Studio. The related visual/UX web prototype is maintained separately at [actorself-demo](https://github.com/marketingandcoach-cyber/actorself-demo).
 
+## Latest integration progress for judges
+
+- Live ACTORSELF demo: https://marketingandcoach-cyber.github.io/actorself-ai-studio/
+- Alexa+ interaction: typed web simulation with story commands and a consent gate; see [ALEXA_SIMULATION.md](ALEXA_SIMULATION.md).
+- AKOOL neural video face swap: manual GitHub Actions pipeline added, API credential kept in repository secrets, polling and downloadable video artifact implemented. See [AKOOL_INTEGRATION.md](AKOOL_INTEGRATION.md).
+- Five offline API contract/error-handling tests passed. Run `node --test scripts/akool-face-swap.test.mjs`.
+- **Pending:** AKOOL credential setup, confirmation that gift credits cover API usage, and a successful live video generation. The public website upload flow is not connected to this manual pipeline yet. No photorealistic output is claimed as verified.
+
 ## What it does
 
 The prototype provides an original fictional scene, **Última luz de Kepler**. A participant selects a character style and alternative ending, uploads a photograph or uses a camera, provides explicit consent, and creates a short **locally composed** audiovisual WebM scene with a player and download option.
