@@ -98,7 +98,7 @@ export function FaceToVideoStudio() {
           const url = URL.createObjectURL(blob);
           resultUrlRef.current = url;
           setResultUrl(url);
-          setMessage('Video generado. Descarga el resultado.');
+          setMessage(detectedFrames ? 'Video generado con transferencia facial en ' + drawnFrames + ' fotogramas. Descarga el resultado.' : 'El video se exportó, pero no se detectó ningún rostro en la escena. Prueba un video con el rostro visible y bien iluminado.');
         } else setMessage('No se generó un video válido.');
         setWorking(false);
         detectorRef.current?.close();
@@ -117,6 +117,9 @@ export function FaceToVideoStudio() {
       const srcW = sourceBounds.w * portrait.naturalWidth * 1.22;
       const srcH = sourceBounds.h * portrait.naturalHeight * 1.24;
       let lastTimestamp = -1;
+      let lastFace: typeof source | null = null;
+      let detectedFrames = 0;
+      let drawnFrames = 0;
       const frame = () => {
         if (video.paused || video.ended) return;
         context.clearRect(0, 0, canvas.width, canvas.height);
@@ -124,8 +127,12 @@ export function FaceToVideoStudio() {
         const timeMs = video.currentTime * 1000;
         if (timeMs > lastTimestamp) {
           lastTimestamp = timeMs;
-          const detected = targetDetector.detectForVideo(video, timeMs).faceLandmarks[0];
-          if (detected) {
+          lastFace = targetDetector.detectForVideo(video, timeMs).faceLandmarks[0] || null;
+          if (lastFace) detectedFrames++;
+        }
+        const detected = lastFace;
+        if (detected) {
+            drawnFrames++;
             const box = bounds(detected);
             const cx = (box.x + box.w / 2) * canvas.width;
             const cy = (box.y + box.h / 2) * canvas.height;
@@ -143,7 +150,6 @@ export function FaceToVideoStudio() {
             context.drawImage(portrait, srcCx - srcW / 2, srcCy - srcH / 2, srcW, srcH, -w / 2, -h / 2, w, h);
             context.restore();
           }
-        }
         rafRef.current = requestAnimationFrame(frame);
       };
       video.currentTime = 0;
@@ -151,8 +157,8 @@ export function FaceToVideoStudio() {
         if (video.readyState >= 2 && video.currentTime === 0) resolve();
         else video.addEventListener('seeked', () => resolve(), { once: true });
       });
-      await video.play();
       recorder.start(250);
+      await video.play();
       setMessage('IA detectando rostros y transfiriéndolos al video, fotograma a fotograma…');
       frame();
       video.addEventListener('ended', () => {
