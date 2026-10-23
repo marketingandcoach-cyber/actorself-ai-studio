@@ -6,7 +6,7 @@ import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
  * Real MediaPipe landmark inference on both inputs; per-frame canvas compositing.
  * This is 2D face transfer, not a photorealistic neural deepfake.
  */
-export function FaceToVideoStudio() {
+export function FaceToVideoStudio({ initialVideo }: { initialVideo?: File }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const portraitRef = useRef<HTMLImageElement | null>(null);
@@ -59,6 +59,8 @@ export function FaceToVideoStudio() {
     setVideoReady(false);
     setMessage('Cargando video…');
   };
+
+  useEffect(() => { if (initialVideo) loadVideo(initialVideo); }, [initialVideo]);
 
   const run = async () => {
     const video = videoRef.current;
