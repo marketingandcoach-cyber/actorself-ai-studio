@@ -403,10 +403,15 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
                   <div className="space-y-4 p-5">
                     {/* Poster Cover */}
                     <div className="relative rounded-xl overflow-hidden aspect-video bg-slate-950 border border-slate-800">
-                      <img
-                        src={story.coverImage}
-                        alt={story.title}
+                      <video
+                        src={`${import.meta.env.BASE_URL}${story.id === "kepler-last-light" ? "WhatsApp%20Video%202026-10-23%20at%204.26.34%20PM.mp4" : story.id === "secret-of-the-fog" ? "WhatsApp%20Video%202026-10-23%20at%204.26.37%20PM.mp4" : "WhatsApp%20Video%202026-10-23%20at%204.26.39%20PM.mp4"}`}
+                        poster={story.coverImage}
+                        aria-label={story.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        muted loop playsInline preload="none"
+                        onMouseEnter={e => { e.currentTarget.play().catch(() => {}); }}
+                        onMouseLeave={e => { e.currentTarget.pause(); e.currentTarget.currentTime = 0; }}
+                        onClick={e => { if (e.currentTarget.paused) e.currentTarget.play().catch(() => {}); else e.currentTarget.pause(); }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
 
