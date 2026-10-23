@@ -27,12 +27,14 @@ export function RemoteFaceSwapStudio({ initialVideo, initialVideoUrl }: { initia
     const update=(s:string)=>{if(mounted.current)setMessage(s);};
     let timer:ReturnType<typeof setTimeout>|undefined;
     let expired=false;
+    let phase="connection";
     try{
       update('Conectando con FaceSwap Zero…');
       const {Client,handle_file}=await import('@gradio/client');
       const app=await Client.connect(FACE_SWAP_HOST,{events:['data','status']});
       clientRef.current=app;
       if(!mounted.current){app.close();return;}
+      phase='scene';
       update('Preparando la escena y enviando los archivos autorizados…');
       let target:unknown;
       if(chosen)target=handle_file(chosen);
@@ -43,6 +45,7 @@ export function RemoteFaceSwapStudio({ initialVideo, initialVideoUrl }: { initia
         target=(response.data as unknown[])[0];
       }
       if(!mounted.current)return;
+      phase='swap';
       const job=app.submit('/swap',{source_img:handle_file(photo),target_file:target,selector_label:'Chỉ mặt lớn nhất',seg_seconds:5,seg_index:1,long_side:'960'});
       cancelRef.current=()=>{void job.cancel();};
       timer=setTimeout(()=>{expired=true;void job.cancel();app.close();},300000);
@@ -57,7 +60,7 @@ export function RemoteFaceSwapStudio({ initialVideo, initialVideoUrl }: { initia
       }
       if(expired||!result)throw new Error('Sin resultado');
       if(mounted.current){setOutput(result);update('Video generado por IA. Revisa la semejanza y los movimientos antes de compartirlo.');}
-    }catch(error){update(expired?'La espera superó 5 minutos. Comprueba la herramienta externa antes de repetir: la solicitud podría seguir procesándose.':remoteErrorMessage(error));}
+    }catch(error){console.warn('FaceSwap '+phase+': '+String(error instanceof Error?error.message:error).replace(/https?:\/\/\S+/g,'[URL]').replace(/\/tmp\/\S+/g,'[file]').slice(0,300));update(expired?'La espera superó 5 minutos. Comprueba la herramienta externa antes de repetir: la solicitud podría seguir procesándose.':remoteErrorMessage(error));}
     finally{if(timer)clearTimeout(timer);cancelRef.current=null;clientRef.current?.close();clientRef.current=null;active.current=false;if(mounted.current)setBusy(false);}
   }
   return <section className="mx-auto max-w-5xl p-5 sm:p-8 rounded-3xl border border-violet-700 bg-slate-900 space-y-4">
