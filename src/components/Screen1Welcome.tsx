@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   ArrowRight,
   Play,
@@ -33,10 +33,6 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
 }) => {
   // Preview Modal state
   const [previewStory, setPreviewStory] = useState<StoryData | null>(null);
-  const [isPlayingPreview, setIsPlayingPreview] = useState<boolean>(true);
-  const [previewTime, setPreviewTime] = useState<number>(0);
-  const previewCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const animFrameIdRef = useRef<number | null>(null);
 
   const handleLaunchStory = (story: StoryData) => {
     if (onSelectStoryAndStart) {
@@ -46,221 +42,11 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
     }
   };
 
-  // Live Canvas simulation inside Preview Modal
-  useEffect(() => {
-    if (!previewStory) {
-      if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
-      return;
-    }
-
-    const canvas = previewCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let startTime = performance.now();
-    let isRunning = true;
-
-    const render = () => {
-      if (!isRunning) return;
-      const now = performance.now();
-      const elapsed = ((now - startTime) / 1000) % 15.0;
-      setPreviewTime(elapsed);
-
-      const w = canvas.width;
-      const h = canvas.height;
-      const cx = w / 2;
-      const cy = h / 2;
-
-      // Clear
-      ctx.fillStyle = '#020617';
-      ctx.fillRect(0, 0, w, h);
-
-      if (previewStory.id === 'kepler-last-light') {
-        // Starfield simulation
-        for (let i = 0; i < 90; i++) {
-          const sx = ((i * 1234.5 + elapsed * 70) % w);
-          const sy = ((i * 876.5) % h);
-          ctx.fillStyle = i % 3 === 0 ? '#38bdf8' : '#ffffff';
-          ctx.fillRect(sx, sy, (i % 3) + 1, (i % 3) + 1);
-        }
-
-        // Dying star glow
-        const starGrad = ctx.createRadialGradient(w - 220, cy - 60, 20, w - 220, cy - 60, 260);
-        starGrad.addColorStop(0, 'rgba(254, 240, 138, 0.9)');
-        starGrad.addColorStop(0.4, 'rgba(249, 115, 22, 0.6)');
-        starGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = starGrad;
-        ctx.beginPath();
-        ctx.arc(w - 220, cy - 60, 260, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Cockpit HUD
-        ctx.strokeStyle = '#38bdf8';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(60, 60, 220, 90);
-        ctx.fillStyle = '#38bdf8';
-        ctx.font = 'bold 12px monospace';
-        ctx.fillText('KEPLER-452 // ORBITAL', 75, 88);
-        ctx.fillText(`TIME: ${elapsed.toFixed(1)}s / 15.0s`, 75, 112);
-
-        // Pilot in space flight seat
-        ctx.fillStyle = '#0f172a';
-        ctx.beginPath();
-        ctx.roundRect(cx - 110, cy - 60, 220, 260, [40, 40, 10, 10]);
-        ctx.fill();
-
-        // Helmet Visor
-        ctx.fillStyle = '#38bdf8';
-        ctx.beginPath();
-        ctx.ellipse(cx, cy - 20, 70, 75, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#0284c7';
-        ctx.beginPath();
-        ctx.ellipse(cx, cy - 20, 62, 66, 0, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Reflected face glow
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-        ctx.beginPath();
-        ctx.ellipse(cx - 15, cy - 40, 40, 15, -0.3, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (previewStory.id === 'secret-of-the-fog') {
-        // Nordic Noir lighthouse interior
-        const bgGrad = ctx.createLinearGradient(0, 0, w, h);
-        bgGrad.addColorStop(0, '#1c1917');
-        bgGrad.addColorStop(1, '#0c0a09');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, w, h);
-
-        // Arched window overlooking stormy sea
-        const winX = w - 320;
-        const winY = 40;
-        const winW = 260;
-        const winH = 340;
-        ctx.save();
-        ctx.beginPath();
-        ctx.roundRect(winX, winY, winW, winH, [100, 100, 8, 8]);
-        ctx.clip();
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(winX, winY, winW, winH);
-
-        // Lighthouse beam rotating
-        const beamX = winX + winW / 2 + Math.cos(elapsed * 1.5) * 200;
-        const beamY = winY + 80 + Math.sin(elapsed * 1.5) * 120;
-        const beamGrad = ctx.createRadialGradient(winX + winW / 2, winY + 80, 5, beamX, beamY, 240);
-        beamGrad.addColorStop(0, 'rgba(254, 240, 138, 0.7)');
-        beamGrad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = beamGrad;
-        ctx.fillRect(winX, winY, winW, winH);
-        ctx.restore();
-
-        // Window frame
-        ctx.strokeStyle = '#334155';
-        ctx.lineWidth = 6;
-        ctx.beginPath();
-        ctx.roundRect(winX, winY, winW, winH, [100, 100, 8, 8]);
-        ctx.stroke();
-
-        // Detective Trench Coat Silhouette
-        ctx.fillStyle = '#1e293b';
-        ctx.beginPath();
-        ctx.moveTo(cx - 180, h);
-        ctx.quadraticCurveTo(cx - 120, cy + 20, cx - 60, cy);
-        ctx.lineTo(cx + 60, cy);
-        ctx.quadraticCurveTo(cx + 120, cy + 20, cx + 180, h);
-        ctx.closePath();
-        ctx.fill();
-
-        // Warm flickering lamp
-        const flicker = Math.sin(elapsed * 8) * 0.1 + 0.3;
-        ctx.fillStyle = `rgba(245, 158, 11, ${flicker})`;
-        ctx.beginPath();
-        ctx.arc(140, cy, 180, 0, Math.PI * 2);
-        ctx.fill();
-      } else {
-        // Cyberpunk 2099 rooftop
-        const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-        skyGrad.addColorStop(0, '#090514');
-        skyGrad.addColorStop(1, '#020617');
-        ctx.fillStyle = skyGrad;
-        ctx.fillRect(0, 0, w, h);
-
-        // Skyscrapers
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(40, 100, 140, h - 100);
-        ctx.fillRect(200, 60, 160, h - 60);
-        ctx.fillRect(w - 280, 80, 180, h - 80);
-
-        // Holographic neon billboards
-        ctx.fillStyle = '#06b6d4';
-        ctx.font = 'bold 22px monospace';
-        ctx.fillText('NEO-SHINJUKU', 60, 160);
-        ctx.fillStyle = '#ec4899';
-        ctx.fillText('ACTORSELF', w - 260, 140);
-
-        // Cyberpunk character silhouette
-        ctx.fillStyle = '#18181b';
-        ctx.beginPath();
-        ctx.moveTo(cx - 160, h);
-        ctx.quadraticCurveTo(cx - 100, cy + 10, cx - 50, cy - 10);
-        ctx.lineTo(cx + 50, cy - 10);
-        ctx.quadraticCurveTo(cx + 100, cy + 10, cx + 160, h);
-        ctx.closePath();
-        ctx.fill();
-
-        // Neon optic collar
-        ctx.strokeStyle = '#06b6d4';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(cx - 50, cy - 5);
-        ctx.lineTo(cx - 25, cy + 50);
-        ctx.stroke();
-
-        ctx.strokeStyle = '#ec4899';
-        ctx.beginPath();
-        ctx.moveTo(cx + 50, cy - 5);
-        ctx.lineTo(cx + 25, cy + 50);
-        ctx.stroke();
-
-        // Rain
-        ctx.strokeStyle = 'rgba(224, 242, 254, 0.4)';
-        ctx.lineWidth = 1;
-        for (let r = 0; r < 40; r++) {
-          const rx = (r * 73 + elapsed * 150) % w;
-          const ry = (r * 91 + elapsed * 300) % h;
-          ctx.beginPath();
-          ctx.moveTo(rx, ry);
-          ctx.lineTo(rx - 8, ry + 22);
-          ctx.stroke();
-        }
-      }
-
-      // Anamorphic Letterbox Bars
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, w, 35);
-      ctx.fillRect(0, h - 35, w, 35);
-
-      // Timecode
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 12px monospace';
-      ctx.fillText(`00:00:${Math.floor(elapsed).toString().padStart(2, '0')}:24`, 25, 24);
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillText('PREVIEW AUTORIZADO // ACTORSELF ENGINE', w - 280, 24);
-
-      if (isRunning) {
-        animFrameIdRef.current = requestAnimationFrame(render);
-      }
-    };
-
-    animFrameIdRef.current = requestAnimationFrame(render);
-
-    return () => {
-      isRunning = false;
-      if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
-    };
-  }, [previewStory]);
+  const previewVideoPath = (story: StoryData) => {
+    if (story.id === 'kepler-last-light') return 'ACTORSELF_PORTADA_KEPLER.mp4';
+    if (story.id === 'secret-of-the-fog') return 'ACTORSELF_PORTADA_NIEBLA.mp4';
+    return 'ACTORSELF_PORTADA_NEON2099.mp4';
+  };
 
   const getGenreIcon = (id: string) => {
     if (id === 'kepler-last-light') return <Shield className="w-4 h-4 text-sky-400" />;
@@ -588,7 +374,7 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
             <div className="p-5 border-b border-slate-800 flex items-center justify-between">
               <div>
                 <span className="text-[10px] font-mono uppercase text-sky-400 block font-bold">
-                  Vista Previa Cinemática en Vivo
+                  Vista Previa Cinematográfica
                 </span>
                 <h3 className="text-lg font-bold text-white font-serif">
                   {previewStory.title}
@@ -602,20 +388,19 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
               </button>
             </div>
 
-            {/* Canvas Video Viewport */}
+            {/* Real cinematic video preview */}
             <div className="relative aspect-video bg-black mx-5 rounded-2xl overflow-hidden border border-slate-800 shadow-inner">
-              <canvas
-                ref={previewCanvasRef}
-                width={854}
-                height={480}
+              <video
+                key={previewStory.id}
+                src={`${import.meta.env.BASE_URL}scenes/${previewVideoPath(previewStory)}`}
+                poster={previewStory.coverImage}
                 className="w-full h-full object-contain"
+                autoPlay
+                controls
+                playsInline
+                preload="auto"
+                aria-label={`Vista previa de ${previewStory.title}`}
               />
-
-              <div className="absolute top-4 left-4">
-                <span className="bg-slate-950/80 px-2.5 py-1 rounded text-[11px] font-mono text-sky-300 border border-slate-800">
-                  {previewStory.genre} · {previewTime.toFixed(1)}s / 15.0s
-                </span>
-              </div>
             </div>
 
             {/* Details & Direct Action */}
