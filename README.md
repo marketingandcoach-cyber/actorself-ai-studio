@@ -4,7 +4,7 @@
 
 ## Live face swap integration
 
-The catalog studio now connects directly to FaceSwap Zero through the Gradio API. Open the live demo, explore the 11-scene test catalog, select a scene, upload a frontal portrait, authorize external processing and generate a five-second clip. Free shared GPU quota and provider availability apply; identity similarity varies. See [HUGGINGFACE_INTEGRATION.md](HUGGINGFACE_INTEGRATION.md). Deployment/browser verification is reported separately; provider-only generation has succeeded.
+The catalog studio now connects directly to FaceSwap Zero through the Gradio API. Open the live demo, explore the 11-scene test catalog, select a scene, upload a frontal portrait, authorize external processing and generate a five-second clip. Free shared GPU quota and provider availability apply; identity similarity varies. See [HUGGINGFACE_INTEGRATION.md](HUGGINGFACE_INTEGRATION.md). End-to-end browser verification succeeded on October 23, 2026: the deployed ACTORSELF catalog uploaded the authorized demo portrait, sent the selected science-fiction scene to the API, received a five-second 960x540 video and displayed a playable result plus download link.
 
 ## Latest integration progress for judges
 
