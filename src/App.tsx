@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AlexaSimulation } from './components/AlexaSimulation';
 import { FaceToVideoStudio } from './components/FaceToVideoStudio';
 import { TestSceneCatalog } from './components/TestSceneCatalog';
 import { Navbar } from './components/Navbar';
@@ -74,6 +75,45 @@ export default function App() {
     setCurrentStep(7);
   };
 
+
+  const handleAlexaCommand = (raw: string): string => {
+    const command = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const showStep = (step: number) => { setShowTestCatalog(false); setFaceStudioOpen(false); setCurrentStep(step); };
+    if (/help|ayuda|what can|que puedes/.test(command)) {
+      return 'Choose Kepler, Fog or Neon; ask for my role, a heroic or mystery ending, status, prepare my scene, or open the scene catalog. / Elige historia, consulta tu rol, cambia el final o prepara tu escena.';
+    }
+    const storyIndex = /kepler|space|espacio/.test(command) ? 0 : /fog|niebla/.test(command) ? 1 : /neon|cyberpunk/.test(command) ? 2 : -1;
+    if (storyIndex >= 0) {
+      const story = STORIES[storyIndex];
+      if (!story.isAvailable) return 'That story is not available.';
+      setSelectedStory(story);
+      setSelectedRole(story.roles[0]);
+      setGeneratedResult(null);
+      setConfig(previous => ({ ...previous, selectedSceneId: story.scenes?.[0]?.id }));
+      showStep(3);
+      return 'Selected: ' + story.title + '. Your role is ' + story.roles[0].name + '. Would you like a heroic or mystery ending? / Puedes elegir un final heroico o de misterio.';
+    }
+    if (/ending|final/.test(command) && /mystery|misterio|heroic|heroico/.test(command)) {
+      const ending = /mystery|misterio/.test(command) ? 'mystery' : 'heroic';
+      setConfig(previous => ({ ...previous, alternateEnding: ending }));
+      return 'Ending set to ' + ending + ' for ' + selectedStory.title + '. Say prepare my scene when ready. / Final actualizado.';
+    }
+    if (/status|estado/.test(command)) return selectedStory.title + ' · ' + selectedRole.name + ' · ' + config.alternateEnding + ' · Consent: ' + (participant.consentGiven ? 'confirmed' : 'required');
+    if (/role|rol|personaje/.test(command)) { showStep(3); return 'Your current role is ' + selectedRole.name + ' in ' + selectedStory.title + '.'; }
+    if (/consent|photo|foto|identity|identidad/.test(command)) { showStep(4); return 'Upload your own photo and review the consent form. Consent must be confirmed manually. / Revisa tu foto y confirma personalmente el consentimiento.'; }
+    if (/prepare|prepara|generate|genera|continue|continua/.test(command)) {
+      if (!participant.consentGiven || !participant.photoDataUrl) {
+        showStep(4);
+        return 'Before preparing your scene, upload your photo and confirm consent in the form. I cannot consent for you. Then send Prepare my scene again. / Primero revisa tu foto y consentimiento.';
+      }
+      showStep(6);
+      return 'Scene preparation opened for ' + selectedStory.title + ', ending: ' + config.alternateEnding + '. Review the settings and press the generation button. / Revisa y pulsa el botón para generar.';
+    }
+    if (/catalog|catalogo|scenes|escenas/.test(command)) { setShowTestCatalog(true); setFaceStudioOpen(false); return 'The test scene catalog is now open. / Catálogo de escenas abierto.'; }
+    if (/open|abre|start|inicio/.test(command) && /actorself|home|inicio/.test(command)) { showStep(2); return 'ACTORSELF is open. Choose Kepler, Fog or Neon. / Elige Kepler, Niebla o Neón.'; }
+    return 'I did not recognize that command. Try Choose Kepler, Choose mystery ending, My role, Status, or Prepare my scene. / Prueba: elige Kepler, final heroico, mi rol o prepara mi escena.';
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-slate-950">
       {/* Top Header / Navigation */}
@@ -101,6 +141,8 @@ export default function App() {
         }}
         onOpenArchitecture={() => setIsArchitectureOpen(true)}
       />
+
+      <AlexaSimulation onCommand={handleAlexaCommand} context={selectedStory.title + ' · ' + selectedRole.name + ' · Ending: ' + config.alternateEnding} />
 
       <div className="max-w-5xl mx-auto px-4 pt-6">
         <button type="button" onClick={() => setFaceStudioOpen(value => !value)} className="w-full rounded-xl border border-sky-500 bg-sky-950 px-5 py-4 font-bold text-sky-200 hover:bg-sky-900">
