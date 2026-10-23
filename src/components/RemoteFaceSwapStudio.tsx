@@ -46,7 +46,7 @@ export function RemoteFaceSwapStudio({ initialVideo, initialVideoUrl }: { initia
       }
       if(!mounted.current)return;
       phase='swap';
-      const job=app.submit('/swap',{source_img:handle_file(photo),target_file:target,selector_label:'Chỉ mặt lớn nhất',seg_seconds:5,seg_index:1,long_side:'960'});
+      const job=app.submit('/swap',{source_img:handle_file(photo),target_file:target,selector_label:'Chỉ mặt lớn nhất',seg_seconds:5,seg_index:1,long_side:960});
       cancelRef.current=()=>{void job.cancel();};
       timer=setTimeout(()=>{expired=true;void job.cancel();app.close();},300000);
       let result='';
