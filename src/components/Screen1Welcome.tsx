@@ -404,7 +404,7 @@ export const Screen1Welcome: React.FC<Screen1WelcomeProps> = ({
                     {/* Poster Cover */}
                     <div className="relative rounded-xl overflow-hidden aspect-video bg-slate-950 border border-slate-800">
                       <video
-                        src={`${import.meta.env.BASE_URL}${story.id === "kepler-last-light" ? "WhatsApp%20Video%202026-10-23%20at%204.26.34%20PM.mp4" : story.id === "secret-of-the-fog" ? "WhatsApp%20Video%202026-10-23%20at%204.26.37%20PM.mp4" : "WhatsApp%20Video%202026-10-23%20at%204.26.39%20PM.mp4"}`}
+                        src={`${import.meta.env.BASE_URL}${story.id === "kepler-last-light" ? "scenes/ACTORSELF_PORTADA_KEPLER.mp4" : story.id === "secret-of-the-fog" ? "scenes/ACTORSELF_PORTADA_NIEBLA.mp4" : "scenes/ACTORSELF_PORTADA_NEON2099.mp4"}`}
                         poster={story.coverImage}
                         aria-label={story.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
