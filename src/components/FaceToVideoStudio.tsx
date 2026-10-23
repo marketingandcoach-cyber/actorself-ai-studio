@@ -127,10 +127,14 @@ export function FaceToVideoStudio() {
       let detectedFrames = 0;
       let drawnFrames = 0;
       let totalFrames = 0;
+      // Output-first compositor: never expose an unmodified actor frame after
+      // processing begins. When tracking drops, hold the last composite.
+      let smoothed: { x: number; y: number; w: number; h: number; angle: number } | null = null;
+      const faceLayer = document.createElement('canvas');
+      const faceContext = faceLayer.getContext('2d');
+      if (!faceContext) throw new Error('No se pudo crear la capa facial.');
       const frame = () => {
         if (video.paused || video.ended) return;
-        context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
         const timeMs = video.currentTime * 1000;
         if (timeMs > lastTimestamp) {
           lastTimestamp = timeMs;
@@ -143,29 +147,54 @@ export function FaceToVideoStudio() {
             misses++;
           }
         }
-        // Keep the last tracked pose through temporary occlusions / detection gaps.
-        // Without temporal persistence the output flashes between original actor and user face.
         const detected = timeMs - lastDetectedAt <= 1500 ? lastFace : null;
         totalFrames++;
         if (detected) {
-            drawnFrames++;
-            const box = bounds(detected);
-            const cx = (box.x + box.w / 2) * canvas.width;
-            const cy = (box.y + box.h / 2) * canvas.height;
-            const w = box.w * canvas.width * 1.2;
-            const h = box.h * canvas.height * 1.2;
-            // Eyes define target head tilt, preserving the scene's head motion.
-            const eyeA = detected[33], eyeB = detected[263];
-            const angle = Math.atan2((eyeB.y - eyeA.y) * canvas.height, (eyeB.x - eyeA.x) * canvas.width);
-            context.save();
-            context.translate(cx, cy);
-            context.rotate(angle);
-            context.beginPath();
-            context.ellipse(0, 0, w * 0.47, h * 0.49, 0, 0, Math.PI * 2);
-            context.clip();
-            context.drawImage(portrait, srcCx - srcW / 2, srcCy - srcH / 2, srcW, srcH, -w / 2, -h / 2, w, h);
-            context.restore();
-          }
+          const box = bounds(detected);
+          const eyeA = detected[33], eyeB = detected[263];
+          const next = {
+            x: (box.x + box.w / 2) * canvas.width,
+            y: (box.y + box.h / 2) * canvas.height,
+            w: box.w * canvas.width * 1.2,
+            h: box.h * canvas.height * 1.2,
+            angle: Math.atan2((eyeB.y - eyeA.y) * canvas.height, (eyeB.x - eyeA.x) * canvas.width),
+          };
+          if (smoothed) {
+            const factor = 0.45;
+            smoothed = {
+              x: smoothed.x + (next.x - smoothed.x) * factor,
+              y: smoothed.y + (next.y - smoothed.y) * factor,
+              w: smoothed.w + (next.w - smoothed.w) * factor,
+              h: smoothed.h + (next.h - smoothed.h) * factor,
+              angle: smoothed.angle + Math.atan2(Math.sin(next.angle - smoothed.angle), Math.cos(next.angle - smoothed.angle)) * factor,
+            };
+          } else smoothed = next;
+
+          // Composite in an isolated transparent layer with a feathered mask.
+          const { x, y, w, h, angle } = smoothed;
+          faceLayer.width = canvas.width;
+          faceLayer.height = canvas.height;
+          faceContext.clearRect(0, 0, faceLayer.width, faceLayer.height);
+          faceContext.save();
+          faceContext.translate(x, y);
+          faceContext.rotate(angle);
+          faceContext.drawImage(portrait, srcCx - srcW / 2, srcCy - srcH / 2, srcW, srcH, -w / 2, -h / 2, w, h);
+          faceContext.globalCompositeOperation = 'destination-in';
+          const radial = faceContext.createRadialGradient(0, 0, w * 0.28, 0, 0, w * 0.51);
+          radial.addColorStop(0, 'rgba(255,255,255,1)');
+          radial.addColorStop(0.75, 'rgba(255,255,255,0.95)');
+          radial.addColorStop(1, 'rgba(255,255,255,0)');
+          faceContext.fillStyle = radial;
+          faceContext.beginPath();
+          faceContext.ellipse(0, 0, w * 0.52, h * 0.53, 0, 0, Math.PI * 2);
+          faceContext.fill();
+          faceContext.restore();
+
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+          context.drawImage(faceLayer, 0, 0);
+          drawnFrames++;
+        }
+        // No detected face: retain last composited frame, never flash original.
         rafRef.current = requestAnimationFrame(frame);
       };
       // Keep the source video hidden: users should only see the composited output.
