@@ -98,7 +98,7 @@ export function FaceToVideoStudio() {
           const url = URL.createObjectURL(blob);
           resultUrlRef.current = url;
           setResultUrl(url);
-          setMessage(detectedFrames ? 'Video generado con transferencia facial en ' + drawnFrames + ' fotogramas. Descarga el resultado.' : 'El video se exportó, pero no se detectó ningún rostro en la escena. Prueba un video con el rostro visible y bien iluminado.');
+          setMessage(detectedFrames ? 'Video generado: ' + drawnFrames + ' fotogramas compuestos; ' + misses + ' detecciones perdidas (suavizadas cuando fue posible).' : 'No se detectó un rostro en el video. No se pudo transferir la identidad.');
         } else setMessage('No se generó un video válido.');
         setWorking(false);
         detectorRef.current?.close();
@@ -118,6 +118,8 @@ export function FaceToVideoStudio() {
       const srcH = sourceBounds.h * portrait.naturalHeight * 1.24;
       let lastTimestamp = -1;
       let lastFace: typeof source | null = null;
+      let lastDetectedAt = -Infinity;
+      let misses = 0;
       let detectedFrames = 0;
       let drawnFrames = 0;
       const frame = () => {
@@ -127,10 +129,18 @@ export function FaceToVideoStudio() {
         const timeMs = video.currentTime * 1000;
         if (timeMs > lastTimestamp) {
           lastTimestamp = timeMs;
-          lastFace = targetDetector.detectForVideo(video, timeMs).faceLandmarks[0] || null;
-          if (lastFace) detectedFrames++;
+          const nextFace = targetDetector.detectForVideo(video, timeMs).faceLandmarks[0];
+          if (nextFace) {
+            lastFace = nextFace;
+            lastDetectedAt = timeMs;
+            detectedFrames++;
+          } else {
+            misses++;
+          }
         }
-        const detected = lastFace;
+        // Keep the last tracked pose through temporary occlusions / detection gaps.
+        // Without temporal persistence the output flashes between original actor and user face.
+        const detected = timeMs - lastDetectedAt <= 1500 ? lastFace : null;
         if (detected) {
             drawnFrames++;
             const box = bounds(detected);
