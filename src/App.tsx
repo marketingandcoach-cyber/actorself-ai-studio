@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaceToVideoStudio } from './components/FaceToVideoStudio';
+import { TestSceneCatalog } from './components/TestSceneCatalog';
 import { Navbar } from './components/Navbar';
 import { Screen1Welcome } from './components/Screen1Welcome';
 import { Screen2StorySelect } from './components/Screen2StorySelect';
@@ -16,6 +17,7 @@ import defaultMateoPortrait from './assets/images/protagonist_male_face_17926813
 export default function App() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [faceStudioOpen, setFaceStudioOpen] = useState(false);
+  const [showLegacyFlow, setShowLegacyFlow] = useState(false);
   const [selectedStory, setSelectedStory] = useState<StoryData>(STORIES[0]);
   const [selectedRole, setSelectedRole] = useState<CharacterRole>(STORIES[0].roles[0]);
 
@@ -106,8 +108,10 @@ export default function App() {
         </button>
       </div>
       {faceStudioOpen && <div className="mt-5"><FaceToVideoStudio /></div>}
-      {/* Main 7-Screen User Flow */}
-      <main className="flex-1">
+      <TestSceneCatalog />
+      <div className="max-w-5xl mx-auto px-4 pb-4"><button type="button" onClick={() => setShowLegacyFlow(v => !v)} className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300">{showLegacyFlow ? 'Ocultar simulador anterior' : 'Ver simulador anterior (escenarios ilustrados, no metraje real)'}</button></div>
+      {/* Legacy seven-step synthetic storyboard flow; not real movie footage. */}
+      {showLegacyFlow && <main className="flex-1">
         {currentStep === 1 && (
           <Screen1Welcome
             onStart={() => setCurrentStep(2)}
@@ -189,9 +193,9 @@ export default function App() {
             onOpenArchitecture={() => setIsArchitectureOpen(true)}
           />
         )}
-      </main>
+      </main>}
 
-      {/* Dossier Modal */}
+      {/* Dossier Modal */
       <ArchitectureModal
         isOpen={isArchitectureOpen}
         onClose={() => setIsArchitectureOpen(false)}
@@ -207,7 +211,7 @@ export default function App() {
             <span className="text-slate-400">Prototipo Funcional para Hackatón de Amazon</span>
           </div>
           <div className="text-[11px] font-mono text-slate-500">
-            Escena Oficial: ACTORSELF: Última luz de Kepler (1080p · 5.0s)
+            Catálogo original de escenas de prueba · 11 géneros
           </div>
         </div>
       </footer>
