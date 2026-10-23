@@ -195,7 +195,7 @@ export default function App() {
         )}
       </main>}
 
-      {/* Dossier Modal */
+      {/* Dossier Modal */}
       <ArchitectureModal
         isOpen={isArchitectureOpen}
         onClose={() => setIsArchitectureOpen(false)}
